@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Creator Media Kit · Vesca</title>
+  <meta name="robots" content="noindex"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --amber:       oklch(0.72 0.12 70);
+      --amber-dim:   oklch(0.72 0.12 70 / 0.12);
+      --amber-mid:   oklch(0.72 0.12 70 / 0.25);
+      --bg:          oklch(0.99 0.004 70);
+      --bg-1:        oklch(0.97 0.006 70);
+      --bg-2:        oklch(0.95 0.007 70);
+      --border:      oklch(0.90 0.008 70);
+      --border-s:    oklch(0.93 0.006 70);
+      --t1:          oklch(0.13 0.006 70);
+      --t2:          oklch(0.35 0.008 70);
+      --t3:          oklch(0.52 0.008 70);
+      --t4:          oklch(0.70 0.006 70);
+    }
+
+    html { background: var(--bg); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+    body { min-height: 100vh; padding: 0 0 80px; }
+
+    /* ── Loading ── */
+    #loading {
+      position: fixed; inset: 0; background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 12px;
+      transition: opacity 0.3s;
+    }
+    #loading.fade-out { opacity: 0; pointer-events: none; }
+    .spinner {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid var(--border);
+      border-top-color: var(--amber);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Error ── */
+    #error-state {
+      display: none; text-align: center; padding: 80px 24px;
+    }
+    #error-state h2 { font-size: 20px; color: var(--t1); margin-bottom: 8px; }
+    #error-state p { font-size: 14px; color: var(--t3); }
+
+    /* ── Kit layout ── */
+    #kit { display: none; max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Top bar ── */
+    .top-bar {
+      height: 3px;
+      background: linear-gradient(90deg, var(--amber) 0%, oklch(0.80 0.14 58) 100%);
+    }
+
+    /* ── Nav strip ── */
+    .kit-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-s);
+      margin-bottom: 48px;
+    }
+    .kit-brand {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--amber);
+    }
+    .kit-nav-label {
+      font-size: 11px; color: var(--t4); letter-spacing: 0.06em; text-transform: uppercase;
+    }
+
+    /* ── Hero ── */
+    .kit-hero { margin-bottom: 44px; }
+
+    .kit-niche-tag {
+      display: inline-flex; align-items: center;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--amber); background: var(--amber-dim); border: 1px solid var(--amber-mid);
+      border-radius: 2px; padding: 3px 8px; margin-bottom: 16px;
+    }
+
+    .kit-name {
+      font-size: clamp(32px, 6vw, 52px);
+      font-weight: 800;
+      color: var(--t1);
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 20px;
+    }
+
+    .kit-bio {
+      font-size: 16px; line-height: 1.75; color: var(--t2);
+      max-width: 580px;
+    }
+
+    /* ── Stat strip ── */
+    .kit-stats {
+      display: flex; gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 44px;
+    }
+    .kit-stat {
+      flex: 1; padding: 20px 24px;
+      border-right: 1px solid var(--border);
+    }
+    .kit-stat:last-child { border-right: none; }
+    .kit-stat-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--t4); margin-bottom: 6px;
+    }
+    .kit-stat-value {
+      font-size: 18px; font-weight: 700; color: var(--t1);
+    }
+
+    /* ── Divider ── */
+    .kit-divider {
+      height: 1px; background: var(--border-s); margin-bottom: 36px;
+    }
+
+    /* ── Section heading ── */
+    .kit-section-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--amber);
+      margin-bottom: 20px;
+    }
+
+    /* ── Social handles ── */
+    .kit-socials {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 44px;
+    }
+    .kit-social-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px;
+      background: var(--bg-1);
+      border: 1px solid var(--border-s);
+      border-radius: 4px;
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .kit-social-card:hover {
+      border-color: var(--amber-mid);
+      background: var(--amber-dim);
+    }
+    .kit-social-icon {
+      width: 30px; height: 30px; border-radius: 6px;
+      background: var(--bg-2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .kit-social-icon svg { width: 15px; height: 15px; }
+    .kit-social-info { min-width: 0; }
+    .kit-social-platform {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--t4); margin-bottom: 2px;
+    }
+    .kit-social-handle {
+      font-size: 13px; font-weight: 600; color: var(--t1);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ── Platform tags ── */
+    .kit-platforms {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 44px;
+    }
+    .kit-platform-tag {
+      font-size: 11px; font-weight: 600;
+      color: var(--t2); background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 3px; padding: 4px 10px;
+    }
+
+    /* ── CTA ── */
+    .kit-cta {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 28px 32px;
+      display: flex; align-items: center; justify-content: space-between; gap: 20px;
+      flex-wrap: wrap;
+    }
+    .kit-cta-text h3 { font-size: 16px; font-weight: 700; color: var(--t1); margin-bottom: 4px; }
+    .kit-cta-text p { font-size: 13px; color: var(--t3); }
+    .kit-cta-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px;
+      background: var(--amber); color: oklch(0.13 0.006 70);
+      font-size: 13px; font-weight: 700;
+      border: none; border-radius: 4px; cursor: pointer;
+      text-decoration: none; white-space: nowrap;
+    }
+    .kit-cta-btn:hover { background: oklch(0.68 0.13 70); }
+
+    /* ── Footer ── */
+    .kit-footer {
+      text-align: center;
+      padding-top: 32px;
+      border-top: 1px solid var(--border-s);
+      margin-top: 48px;
+    }
+    .kit-footer p {
+      font-size: 11px; color: var(--t4);
+    }
+    .kit-footer a {
+      color: var(--amber); text-decoration: none; font-weight: 600;
+    }
+
+    @media (max-width: 480px) {
+      .kit-stats { flex-direction: column; }
+      .kit-stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .kit-stat:last-child { border-bottom: none; }
+      .kit-cta { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <p style="font-size:12px;color:oklch(0.60 0.008 70)">Loading kit...</p>
+</div>
+
+<div id="error-state">
+  <h2>Kit not found</h2>
+  <p>This media kit link may be invalid or the creator has removed it.</p>
+</div>
+
+<div class="top-bar"></div>
+
+<div id="kit">
+  <div class="kit-nav">
+    <span class="kit-brand">Vesca</span>
+    <span class="kit-nav-label">Creator Media Kit</span>
+  </div>
+
+  <!-- Hero -->
+  <div class="kit-hero">
+    <div id="kit-niche-tag" class="kit-niche-tag"></div>
+    <h1 id="kit-name" class="kit-name"></h1>
+    <p id="kit-bio" class="kit-bio"></p>
+  </div>
+
+  <!-- Stats -->
+  <div class="kit-stats" id="kit-stats">
+    <div class="kit-stat">
+      <div class="kit-stat-label">Audience</div>
+      <div class="kit-stat-value" id="kit-followers"></div>
+    </div>
+    <div class="kit-stat" id="kit-stat-platforms-wrap">
+      <div class="kit-stat-label">Platforms</div>
+      <div class="kit-stat-value" id="kit-stat-platforms"></div>
+    </div>
+    <div class="kit-stat">
+      <div class="kit-stat-label">Content Focus</div>
+      <div class="kit-stat-value" id="kit-stat-niche"></div>
+    </div>
+  </div>
+
+  <!-- Social handles -->
+  <div id="kit-socials-section">
+    <div class="kit-section-label">Channels</div>
+    <div id="kit-socials" class="kit-socials"></div>
+  </div>
+
+  <div class="kit-divider"></div>
+
+  <!-- CTA -->
+  <div class="kit-cta">
+    <div class="kit-cta-text">
+      <h3>Interested in working together?</h3>
+      <p>Reach out to discuss partnership opportunities and rates.</p>
+    </div>
+    <a id="kit-cta-link" href="https://getvesca.com" class="kit-cta-btn">
+      Get in Touch
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <div class="kit-footer">
+    <p>Built with <a href="https://getvesca.com" target="_blank" rel="noopener">Vesca</a> · Creator Deal Management</p>
+  </div>
+</div>
+
+<script>
+const API = 'https://vesca-backend-production.up.railway.app';
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = String(str || '');
+  return d.innerHTML;
+}
+
+const PLATFORM_ICONS = {
+  instagram: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>`,
+  tiktok:    `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V9.06a8.16 8.16 0 0 0 4.77 1.52V7.14a4.85 4.85 0 0 1-1-.45z"/></svg>`,
+  youtube:   `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.58 7.19c-.24-.9-.93-1.6-1.82-1.84C18.25 5 12 5 12 5s-6.25 0-7.76.35c-.89.24-1.58.94-1.82 1.84C2.07 8.72 2 12 2 12s.07 3.28.42 4.81c.24.9.93 1.6 1.82 1.84C5.75 19 12 19 12 19s6.25 0 7.76-.35c.89-.24 1.58-.94 1.82-1.84C21.93 15.28 22 12 22 12s-.07-3.28-.42-4.81zM10 15V9l5.2 3-5.2 3z"/></svg>`,
+  twitter:   `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`,
+};
+
+const PLATFORM_URLS = {
+  instagram: h => `https://instagram.com/${encodeURIComponent(h)}`,
+  tiktok:    h => `https://tiktok.com/@${encodeURIComponent(h)}`,
+  youtube:   h => `https://youtube.com/@${encodeURIComponent(h)}`,
+  twitter:   h => `https://x.com/${encodeURIComponent(h)}`,
+};
+
+function getPlatformCount(profile) {
+  let count = 0;
+  if (profile.handle_ig)      count++;
+  if (profile.handle_tiktok)  count++;
+  if (profile.handle_youtube) count++;
+  if (profile.handle_twitter) count++;
+  return count;
+}
+
+function renderSocials(profile) {
+  const container = document.getElementById('kit-socials');
+  const section = document.getElementById('kit-socials-section');
+  const socials = [
+    { key: 'instagram', handle: profile.handle_ig,      label: 'Instagram' },
+    { key: 'tiktok',    handle: profile.handle_tiktok,  label: 'TikTok' },
+    { key: 'youtube',   handle: profile.handle_youtube, label: 'YouTube' },
+    { key: 'twitter',   handle: profile.handle_twitter, label: 'Twitter / X' },
+  ].filter(s => s.handle);
+
+  if (!socials.length) {
+    section.style.display = 'none';
+    return;
+  }
+
+  container.innerHTML = socials.filter(s => {
+    const url = PLATFORM_URLS[s.key](s.handle);
+    return url.startsWith('https://');
+  }).map(s => {
+    const url = PLATFORM_URLS[s.key](s.handle);
+    return `
+    <a href="${url}" target="_blank" rel="noopener noreferrer" class="kit-social-card">
+      <div class="kit-social-icon" style="color:var(--t3)">${PLATFORM_ICONS[s.key]}</div>
+      <div class="kit-social-info">
+        <div class="kit-social-platform">${s.label}</div>
+        <div class="kit-social-handle">@${esc(s.handle)}</div>
+      </div>
+    </a>
+  `;
+  }).join('');
+}
+
+async function loadKit() {
+  const params   = new URLSearchParams(location.search);
+  const username = params.get('u');
+  const userId   = params.get('id');
+
+  if (!username && !userId) { showError(); return; }
+
+  try {
+    const url = username
+      ? `${API}/kit/u/${encodeURIComponent(username)}`
+      : `${API}/kit/${encodeURIComponent(userId)}`;
+    const resp = await fetch(url);
+    if (!resp.ok) { showError(); return; }
+    const profile = await resp.json();
+    render(profile);
+  } catch {
+    showError();
+  }
+}
+
+function render(profile) {
+  const name = profile.name || 'Creator';
+
+  document.title = `${name} · Media Kit`;
+
+  // Niche tag
+  const nicheTag = document.getElementById('kit-niche-tag');
+  if (profile.niche) {
+    nicheTag.textContent = profile.niche;
+  } else {
+    nicheTag.style.display = 'none';
+  }
+
+  // Name
+  document.getElementById('kit-name').textContent = name;
+
+  // Bio
+  const bioEl = document.getElementById('kit-bio');
+  if (profile.bio) {
+    bioEl.textContent = profile.bio;
+  } else {
+    bioEl.style.display = 'none';
+  }
+
+  // Stats
+  document.getElementById('kit-followers').textContent = profile.follower_count || 'Undisclosed';
+  document.getElementById('kit-stat-niche').textContent = profile.niche || 'General';
+
+  const platformCount = getPlatformCount(profile);
+  if (platformCount > 0) {
+    document.getElementById('kit-stat-platforms').textContent = platformCount + (platformCount === 1 ? ' channel' : ' channels');
+  } else if (profile.platforms && profile.platforms.length) {
+    document.getElementById('kit-stat-platforms').textContent = profile.platforms.length + ' channel' + (profile.platforms.length > 1 ? 's' : '');
+  } else {
+    document.getElementById('kit-stat-platforms-wrap').style.display = 'none';
+  }
+
+  // Socials
+  renderSocials(profile);
+
+  // CTA mailto
+  // We don't expose email publicly — link to Vesca instead
+  const ctaLink = document.getElementById('kit-cta-link');
+  ctaLink.href = 'https://getvesca.com';
+
+  // Show kit
+  document.getElementById('kit').style.display = 'block';
+  const loader = document.getElementById('loading');
+  loader.classList.add('fade-out');
+  setTimeout(() => { loader.style.display = 'none'; }, 300);
+}
+
+function showError() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('error-state').style.display = 'block';
+}
+
+loadKit();
+</script>
+</body>
+</html>

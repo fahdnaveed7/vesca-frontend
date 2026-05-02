@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vesca — Sign In</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:      #0d0d10;
+  --bg-1:    #111116;
+  --border:  #1e1e26;
+  --brd-s:   #181820;
+  --t1:      #ebebf0;
+  --t2:      #8080a0;
+  --t3:      #44445a;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-family: 'Geist', system-ui, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }
+body { background: var(--bg); color: var(--t1); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+
+.card { width: 100%; max-width: 340px; }
+
+/* Logo */
+.logo { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 36px; }
+.logomark {
+  width: 24px; height: 24px; border-radius: 3px; background: var(--t1);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.logomark svg { width: 12px; height: 12px; }
+.logoname { font-size: 16px; font-weight: 700; letter-spacing: -0.025em; }
+
+/* Headings */
+.view-title { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 3px; }
+.view-sub { font-size: 12px; color: var(--t3); margin-bottom: 24px; }
+
+/* Alert */
+#alert {
+  display: none; margin-bottom: 16px; padding: 10px 14px;
+  border-radius: 3px; font-size: 13px; font-weight: 500;
+  border: 1px solid;
+}
+#alert.error { background: rgba(200,60,60,0.06); border-color: rgba(200,60,60,0.2); color: #e08080; }
+#alert.success { background: rgba(60,160,100,0.06); border-color: rgba(60,160,100,0.2); color: #70c090; }
+
+/* Views */
+.view { display: none; }
+.view.active { display: block; animation: viewIn 0.18s ease forwards; }
+@keyframes viewIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Form */
+.field { margin-bottom: 12px; }
+.field label {
+  display: block; font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--t3); margin-bottom: 5px;
+}
+.field input {
+  width: 100%; background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: 3px; padding: 9px 12px; font-size: 13px; color: var(--t1);
+  font-family: inherit; outline: none; transition: border-color 0.12s;
+  appearance: none;
+}
+.field input::placeholder { color: var(--t3); }
+.field input:focus { border-color: var(--t2); }
+.field input:disabled { color: var(--t3); cursor: not-allowed; }
+
+/* Buttons */
+.btn-submit {
+  width: 100%; background: var(--t1); border: none; border-radius: 3px;
+  padding: 10px; font-size: 13px; font-weight: 600; color: var(--bg);
+  cursor: pointer; font-family: inherit; letter-spacing: -0.01em;
+  margin-top: 4px; transition: opacity 0.12s;
+}
+.btn-submit:hover { opacity: 0.88; }
+.btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Links */
+.links { margin-top: 18px; display: flex; flex-direction: column; gap: 8px; text-align: center; }
+.link-btn {
+  background: none; border: none; font-family: inherit; font-size: 12px;
+  color: var(--t3); cursor: pointer; padding: 0; transition: color 0.12s;
+}
+.link-btn:hover { color: var(--t2); }
+.link-btn.primary { color: var(--t2); font-weight: 500; }
+.link-btn.primary:hover { color: var(--t1); }
+.link-sep { font-size: 12px; color: var(--border); }
+
+/* Footer */
+.auth-footer { margin-top: 24px; text-align: center; font-size: 11px; color: var(--t3); }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logomark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0d0d10" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="logoname">Vesca</span>
+  </div>
+
+  <div id="alert"></div>
+
+  <!-- ── SIGN IN ── -->
+  <div id="view-signin" class="view active">
+    <div class="view-title">Welcome back</div>
+    <div class="view-sub">Sign in to your Vesca account</div>
+    <div class="field">
+      <label>Email or Username</label>
+      <input id="si-email" type="text" placeholder="you@example.com or @username" autocomplete="username"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="si-password" type="password" placeholder="••••••••"/>
+    </div>
+    <button onclick="signIn()" id="btn-signin" class="btn-submit">Sign In</button>
+    <div class="links">
+      <button onclick="showView('forgot')" class="link-btn">Forgot your password?</button>
+      <span class="link-sep">—</span>
+      <button onclick="showView('signup')" class="link-btn primary">Don't have an account? Sign up</button>
+    </div>
+  </div>
+
+  <!-- ── SIGN UP ── -->
+  <div id="view-signup" class="view">
+    <div class="view-title">Create your account</div>
+    <div class="view-sub">Start managing your brand deals for free</div>
+    <div class="field">
+      <label>Your Name</label>
+      <input id="su-name" type="text" placeholder="e.g. Alex Johnson"/>
+    </div>
+    <div class="field">
+      <label>Username <span style="color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0">(for your media kit link)</span></label>
+      <div style="position:relative">
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:13px;pointer-events:none">@</span>
+        <input id="su-username" type="text" placeholder="yourname" style="padding-left:22px" autocomplete="username" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')"/>
+      </div>
+      <p id="su-username-hint" style="font-size:11px;color:var(--t3);margin-top:4px">3–30 chars. Letters, numbers, underscores.</p>
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input id="su-email" type="email" placeholder="you@example.com"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="su-password" type="password" placeholder="At least 8 characters"/>
+    </div>
+    <button onclick="signUp()" id="btn-signup" class="btn-submit">Create Account</button>
+    <div class="links">
+      <button onclick="showView('signin')" class="link-btn primary">Already have an account? Sign in</button>
+    </div>
+  </div>
+
+  <!-- ── FORGOT PASSWORD ── -->
+  <div id="view-forgot" class="view">
+    <div class="view-title">Reset your password</div>
+    <div class="view-sub">We'll send a reset link to your email</div>
+    <div class="field">
+      <label>Email</label>
+      <input id="fp-email" type="email" placeholder="you@example.com"/>
+    </div>
+    <button onclick="forgotPassword()" id="btn-forgot" class="btn-submit">Send Reset Link</button>
+    <div class="links">
+      <button onclick="showView('signin')" class="link-btn primary">Back to sign in</button>
+    </div>
+  </div>
+
+  <!-- ── RESET PASSWORD ── -->
+  <div id="view-reset" class="view">
+    <div class="view-title">Set new password</div>
+    <div class="view-sub">Choose a strong password for your account</div>
+    <div class="field">
+      <label>New Password</label>
+      <input id="rp-password" type="password" placeholder="At least 8 characters"/>
+    </div>
+    <div class="field">
+      <label>Confirm Password</label>
+      <input id="rp-confirm" type="password" placeholder="••••••••"/>
+    </div>
+    <button onclick="resetPassword()" id="btn-reset" class="btn-submit">Update Password</button>
+  </div>
+
+  <p class="auth-footer">By continuing you agree to our Terms of Service and Privacy Policy</p>
+</div>
+
+<script>
+const SUPABASE_URL  = 'https://sazgayxevzjaphubexwo.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhemdheXhldnpqYXBodWJleHdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0ODY4OTMsImV4cCI6MjA5MzA2Mjg5M30.NsYM4bQ0vt8077pOlUIwdCaXx8S2Q0_18t9zE-18jVU';
+const API = 'https://vesca-backend-production.up.railway.app';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  clearAlert();
+}
+
+function showAlert(msg, type = 'error') {
+  const el = document.getElementById('alert');
+  el.className = type;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function clearAlert() {
+  document.getElementById('alert').style.display = 'none';
+}
+
+function setLoading(btnId, loading, label) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  btn.textContent = loading ? 'Please wait...' : label;
+}
+
+// Detect password recovery from URL hash
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    showView('reset');
+  }
+});
+
+// If already signed in, go straight to app
+sb.auth.getSession().then(({ data: { session } }) => {
+  if (session) window.location.href = 'app.html';
+});
+
+async function signIn() {
+  let input    = document.getElementById('si-email').value.trim();
+  const password = document.getElementById('si-password').value;
+  if (!input || !password) return showAlert('Please fill in all fields.');
+
+  setLoading('btn-signin', true, 'Sign In');
+
+  // Detect username (no @ symbol and not an email format)
+  const isEmail = input.includes('@') && input.includes('.');
+  if (!isEmail) {
+    // Strip leading @ if user typed it
+    const username = input.replace(/^@/, '').toLowerCase();
+    try {
+      const resp = await fetch(`${API}/auth/resolve-username`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        setLoading('btn-signin', false, 'Sign In');
+        return showAlert(data.error || 'No account found with that username.');
+      }
+      input = data.email;
+    } catch {
+      setLoading('btn-signin', false, 'Sign In');
+      return showAlert('Could not resolve username. Please sign in with your email.');
+    }
+  }
+
+  const { error } = await sb.auth.signInWithPassword({ email: input, password });
+  setLoading('btn-signin', false, 'Sign In');
+  if (error) return showAlert(error.message);
+  window.location.href = 'app.html';
+}
+
+async function signUp() {
+  const name     = document.getElementById('su-name').value.trim();
+  const username = document.getElementById('su-username').value.trim().toLowerCase();
+  const email    = document.getElementById('su-email').value.trim();
+  const password = document.getElementById('su-password').value;
+
+  if (!name || !email || !password) return showAlert('Please fill in all fields.');
+  if (username && !/^[a-z0-9_]{3,30}$/.test(username)) return showAlert('Username must be 3–30 chars: letters, numbers, underscores only.');
+  if (password.length < 8) return showAlert('Password must be at least 8 characters.');
+
+  setLoading('btn-signup', true, 'Create Account');
+  const { error } = await sb.auth.signUp({
+    email,
+    password,
+    options: { data: { name, username: username || null } },
+  });
+  setLoading('btn-signup', false, 'Create Account');
+  if (error) return showAlert(error.message);
+  showAlert('Check your email to confirm your account, then sign in.', 'success');
+  setTimeout(() => showView('signin'), 3000);
+}
+
+async function forgotPassword() {
+  const email = document.getElementById('fp-email').value.trim();
+  if (!email) return showAlert('Please enter your email.');
+  setLoading('btn-forgot', true, 'Send Reset Link');
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/auth.html',
+  });
+  setLoading('btn-forgot', false, 'Send Reset Link');
+  if (error) return showAlert(error.message);
+  showAlert('Reset link sent! Check your inbox.', 'success');
+}
+
+async function resetPassword() {
+  const password = document.getElementById('rp-password').value;
+  const confirm  = document.getElementById('rp-confirm').value;
+  if (!password || !confirm) return showAlert('Please fill in both fields.');
+  if (password !== confirm) return showAlert('Passwords do not match.');
+  if (password.length < 8) return showAlert('Password must be at least 8 characters.');
+  setLoading('btn-reset', true, 'Update Password');
+  const { error } = await sb.auth.updateUser({ password });
+  setLoading('btn-reset', false, 'Update Password');
+  if (error) return showAlert(error.message);
+  showAlert('Password updated! Redirecting...', 'success');
+  setTimeout(() => window.location.href = 'app.html', 2000);
+}
+
+// Allow pressing Enter to submit
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  const active = document.querySelector('.view.active')?.id;
+  if (active === 'view-signin')  signIn();
+  if (active === 'view-signup')  signUp();
+  if (active === 'view-forgot')  forgotPassword();
+  if (active === 'view-reset')   resetPassword();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vesca — Your Brand Deals Deserve Better Than Gmail</title>
+<meta name="description" content="Vesca is the deal operating system for creators. Pitch brands, track replies, send proposals, schedule calls, and get paid — all in one place. Built for creators who run their sponsorships like a business."/>
+<link rel="canonical" href="https://getvesca.com/"/>
+<meta property="og:title" content="Vesca — Your Brand Deals Deserve Better Than Gmail"/>
+<meta property="og:description" content="Vesca is the deal operating system for creators. Pitch, track, propose, schedule, and get paid — all in one place."/>
+<meta property="og:url" content="https://getvesca.com"/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Vesca — Your Brand Deals Deserve Better Than Gmail"/>
+<meta name="twitter:description" content="The deal operating system for creators. Pitch, track, propose, schedule, and get paid — all in one place."/>
+<link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:      #0d0d10;
+  --bg-1:    #111116;
+  --bg-2:    #16161c;
+  --border:  #1e1e26;
+  --brd-s:   #181820;
+  --t1:      #ebebf0;
+  --t2:      #8080a0;
+  --t3:      #44445a;
+  --t4:      #2c2c3c;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-family: 'Geist', system-ui, sans-serif; background: var(--bg); color: var(--t1); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body { overflow-x: hidden; }
+a { text-decoration: none; }
+
+/* ── Shared ─────────────────────────────────────────── */
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 28px; }
+
+.btn-primary {
+  display: inline-block; background: var(--t1); color: var(--bg);
+  font-size: 13px; font-weight: 600; letter-spacing: -0.01em;
+  padding: 9px 20px; border-radius: 4px; border: none; cursor: pointer;
+  transition: opacity 0.15s; font-family: inherit;
+}
+.btn-primary:hover { opacity: 0.88; }
+
+.btn-ghost {
+  display: inline-block; background: none; color: var(--t2);
+  font-size: 13px; font-weight: 500; border: 1px solid var(--border);
+  padding: 9px 20px; border-radius: 4px; cursor: pointer;
+  transition: border-color 0.15s, color 0.15s; font-family: inherit;
+}
+.btn-ghost:hover { border-color: var(--t3); color: var(--t1); }
+
+.divider { height: 1px; background: var(--brd-s); }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { border: 2px solid rgba(235,235,240,0.1); border-top-color: var(--t1); border-radius: 50%; width: 16px; height: 16px; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
+
+@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.marquee-inner { animation: marquee 28s linear infinite; display: flex; gap: 52px; white-space: nowrap; }
+
+/* ── Nav ─────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 48px; background: var(--bg);
+  border-bottom: 1px solid var(--brd-s);
+  display: flex; align-items: center;
+}
+.nav-inner {
+  max-width: 1040px; margin: 0 auto; padding: 0 28px;
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { display: flex; align-items: center; gap: 8px; }
+.nav-logomark {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.nav-logomark svg { width: 20px; height: 20px; }
+.nav-name { font-size: 15px; font-weight: 700; letter-spacing: -0.03em; color: var(--t1); }
+
+/* ── Hero ────────────────────────────────────────────── */
+.hero { padding: 100px 28px 72px; max-width: 1040px; margin: 0 auto; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: oklch(0.14 0.04 70 / 0.5);
+  border: 1px solid oklch(0.35 0.1 70 / 0.3);
+  border-radius: 100px;
+  padding: 5px 12px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  color: oklch(0.72 0.12 70);
+  margin-bottom: 24px;
+}
+
+.hero h1 {
+  font-size: clamp(36px, 5.5vw, 58px); font-weight: 800; letter-spacing: -0.04em;
+  line-height: 1.0; color: var(--t1); margin-bottom: 20px;
+}
+.hero h1 span { color: var(--t2); }
+
+.hero-sub {
+  font-size: 16px; line-height: 1.65; color: var(--t2);
+  max-width: 500px; margin-bottom: 32px;
+}
+
+.hero-ctas { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.hero-meta { margin-top: 20px; font-size: 11px; color: var(--t3); }
+.hero-meta strong { color: var(--t2); font-weight: 600; }
+
+/* ── Brands bar ─────────────────────────────────────── */
+.brands-bar {
+  border-top: 1px solid var(--brd-s); border-bottom: 1px solid var(--brd-s);
+  padding: 16px 0; overflow: hidden;
+}
+.brands-label {
+  text-align: center; font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--t3); margin-bottom: 14px;
+}
+.brand-name { color: var(--t3); font-weight: 700; font-size: 14px; letter-spacing: 0.02em; }
+
+/* ── Features ─────────────────────────────────────── */
+.features { padding: 64px 28px; max-width: 1040px; margin: 0 auto; }
+.section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--t3); margin-bottom: 26px;
+}
+.feat-list { display: flex; flex-direction: column; }
+.feat-item { display: grid; grid-template-columns: 180px 1fr; gap: 28px; padding: 20px 0; border-top: 1px solid var(--brd-s); }
+.feat-item:last-child { border-bottom: 1px solid var(--brd-s); }
+.feat-item-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--t3); padding-top: 2px; }
+.feat-item-label-badge {
+  display: inline-block; font-size: 8px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 2px 6px; border-radius: 2px; margin-top: 6px;
+  background: oklch(0.14 0.04 70 / 0.5); border: 1px solid oklch(0.35 0.1 70 / 0.3);
+  color: oklch(0.72 0.12 70);
+}
+.feat-item-body { font-size: 14px; line-height: 1.65; color: var(--t2); }
+.feat-item-body strong { color: var(--t1); font-weight: 600; display: block; margin-bottom: 4px; }
+@media (max-width: 600px) {
+  .feat-item { grid-template-columns: 1fr; gap: 6px; }
+}
+
+/* ── Video section ──────────────────────────────── */
+.video-section { padding: 0 28px 64px; max-width: 1040px; margin: 0 auto; }
+.video-wrap {
+  position: relative; width: 100%; aspect-ratio: 16 / 9;
+  background: var(--bg-1); border: 1px solid var(--brd-s);
+  border-radius: 6px; overflow: hidden;
+}
+.video-wrap iframe {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  border: none;
+}
+.video-caption {
+  margin-top: 14px; font-size: 12px; color: var(--t3); text-align: center;
+}
+
+/* ── How it works ────────────────────────────────── */
+.how { padding: 0 28px 64px; max-width: 1040px; margin: 0 auto; }
+.how-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; border: 1px solid var(--brd-s); border-radius: 4px; overflow: hidden; }
+.how-item { padding: 24px; border-right: 1px solid var(--brd-s); }
+.how-item:last-child { border-right: none; }
+.how-num {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--t3);
+  margin-bottom: 12px; font-variant-numeric: tabular-nums;
+}
+.how-title { font-size: 13px; font-weight: 600; color: var(--t1); margin-bottom: 6px; }
+.how-desc { font-size: 12px; color: var(--t3); line-height: 1.6; }
+
+/* ── Testimonials ─────────────────────────────── */
+.testimonials { padding: 0 28px 64px; max-width: 1040px; margin: 0 auto; }
+.quote { padding: 20px 0; border-top: 1px solid var(--brd-s); }
+.quote:last-child { border-bottom: 1px solid var(--brd-s); }
+.quote-text { font-size: 14px; line-height: 1.65; color: var(--t2); margin-bottom: 10px; }
+.quote-attr { font-size: 11px; color: var(--t3); font-weight: 500; }
+
+/* ── Waitlist ─────────────────────────────────── */
+.waitlist-section { border-top: 1px solid var(--brd-s); padding: 72px 28px; }
+.waitlist-inner { max-width: 520px; }
+.waitlist-section h2 {
+  font-size: clamp(28px, 4.5vw, 42px); font-weight: 800; letter-spacing: -0.035em;
+  line-height: 1.08; margin-bottom: 14px;
+}
+.waitlist-section p { font-size: 15px; color: var(--t2); margin-bottom: 28px; line-height: 1.6; }
+.wl-form { display: flex; gap: 8px; flex-wrap: wrap; }
+.wl-input {
+  flex: 1; min-width: 210px; background: var(--bg-1); border: 1px solid var(--border);
+  color: var(--t1); padding: 10px 14px; border-radius: 4px; font-size: 14px;
+  outline: none; font-family: inherit; transition: border-color 0.15s;
+}
+.wl-input::placeholder { color: var(--t3); }
+.wl-input:focus { border-color: var(--t2); }
+.wl-btn { white-space: nowrap; }
+.wl-meta { font-size: 11px; color: var(--t3); margin-top: 12px; }
+
+.success-box {
+  background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: 4px; padding: 20px 24px; margin-top: 16px;
+}
+.success-box .success-title { font-size: 15px; font-weight: 700; color: var(--t1); margin-bottom: 4px; }
+.success-box p { font-size: 13px; color: var(--t2); margin: 0; }
+
+.already-box {
+  background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: 4px; padding: 12px 16px; margin-top: 12px;
+  font-size: 13px; color: var(--t2);
+}
+
+/* ── Pricing ──────────────────────────────────── */
+.pricing { padding: 80px 28px 72px; max-width: 1040px; margin: 0 auto; }
+.pricing-headline { font-size: clamp(26px, 4vw, 38px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.1; margin-top: 8px; margin-bottom: 32px; }
+.pricing-headline span { color: var(--t2); }
+
+.trial-strip {
+  background: oklch(0.14 0.04 70 / 0.6); border: 1px solid oklch(0.35 0.1 70 / 0.4);
+  border-radius: 3px; padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 28px;
+}
+.trial-strip-left { display: flex; align-items: flex-start; gap: 12px; }
+.trial-strip-pulse {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: oklch(0.72 0.12 70); flex-shrink: 0; margin-top: 4px;
+  box-shadow: 0 0 0 0 oklch(0.72 0.12 70 / 0.4);
+  animation: pulse-ring 2s ease-out infinite;
+}
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 oklch(0.72 0.12 70 / 0.4); }
+  70%  { box-shadow: 0 0 0 7px oklch(0.72 0.12 70 / 0); }
+  100% { box-shadow: 0 0 0 0 oklch(0.72 0.12 70 / 0); }
+}
+.trial-strip-title { font-size: 13px; font-weight: 600; color: var(--t1); margin-bottom: 3px; }
+.trial-strip-sub { font-size: 12px; color: var(--t2); }
+.trial-strip-right { font-size: 13px; font-weight: 700; color: oklch(0.72 0.12 70); white-space: nowrap; }
+.trial-tag {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--t3); margin: 8px 0 4px;
+}
+.trial-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+.trial-dot-amber { background: oklch(0.72 0.12 70); }
+.trial-dot-blue  { background: oklch(0.72 0.1 250); }
+.founding-price-line {
+  font-size: 11px; color: var(--t3); margin-top: 4px; line-height: 1.4;
+}
+
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--brd-s); border: 1px solid var(--brd-s);
+  border-radius: 3px; overflow: hidden; gap: 1px;
+}
+.plan {
+  background: var(--bg-1); padding: 22px;
+  display: flex; flex-direction: column; gap: 0;
+  position: relative;
+}
+.plan-highlighted { background: var(--bg-2); }
+.plan-highlighted::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: oklch(0.72 0.12 70);
+  border-radius: 3px 3px 0 0;
+}
+.plan-top { margin-bottom: 18px; }
+.plan-badge-row { margin-bottom: 8px; min-height: 18px; }
+.plan-badge {
+  display: inline-block; font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  border: 1px solid oklch(0.72 0.12 145 / 0.5);
+  color: oklch(0.72 0.12 145); border-radius: 2px; padding: 2px 7px;
+}
+.plan-name { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--t3); margin-bottom: 10px; }
+.plan-price { display: flex; align-items: baseline; gap: 3px; margin-bottom: 6px; }
+.plan-amount { font-size: 30px; font-weight: 800; letter-spacing: -0.04em; color: var(--t1); }
+.plan-period { font-size: 12px; color: var(--t3); }
+.plan-desc { font-size: 12px; color: var(--t3); line-height: 1.5; }
+.plan-sep { height: 1px; background: var(--brd-s); margin: 16px 0; }
+.plan-feats { display: flex; flex-direction: column; gap: 9px; flex: 1; margin-bottom: 20px; }
+.pf { font-size: 12px; color: var(--t3); display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
+.pf::before { content: '—'; flex-shrink: 0; font-size: 11px; color: var(--t4); margin-top: 1px; }
+.pf-on { color: var(--t2); }
+.pf-on::before { content: '✓'; color: var(--t1) !important; }
+.pf-strong { color: var(--t1); }
+.pf-strong::before { content: '✓'; color: var(--t1) !important; }
+.plan-cta { margin-top: auto; }
+.plan-cta .btn-primary,
+.plan-cta .btn-ghost { width: 100%; text-align: center; display: block; padding: 9px 16px; }
+
+@media (max-width: 1060px) { .pricing-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px)  { .pricing-grid { grid-template-columns: 1fr; } .trial-strip { flex-direction: column; } }
+
+/* ── Billing toggle ───────────────────────── */
+.billing-toggle {
+  display: flex; align-items: center; gap: 0;
+  background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: 4px; padding: 3px; width: fit-content; margin-bottom: 24px;
+}
+.toggle-btn {
+  font-size: 12px; font-weight: 600; padding: 7px 16px;
+  border-radius: 2px; border: none; cursor: pointer;
+  background: none; color: var(--t3); font-family: inherit;
+  transition: all 0.15s; white-space: nowrap;
+}
+.toggle-btn.active { background: var(--bg-2); color: var(--t1); }
+.toggle-save { font-size: 10px; font-weight: 700; color: oklch(0.72 0.12 145); margin-left: 5px; }
+/* Payment modal */
+.pm-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.78); z-index:200; display:none; align-items:center; justify-content:center; }
+.pm-overlay.open { display:flex; }
+.pm-box { background:var(--bg-1); border:1px solid var(--border); border-radius:4px; padding:28px; max-width:400px; width:90%; }
+.pm-period-toggle { display:flex; gap:2px; background:var(--bg-2); border:1px solid var(--border); border-radius:4px; padding:3px; margin-bottom:14px; }
+.pm-period-btn { flex:1; padding:7px; border:none; border-radius:3px; font-size:12px; font-weight:500; font-family:inherit; cursor:pointer; transition:all 0.12s; display:flex; align-items:center; justify-content:center; gap:6px; color:var(--t3); background:none; }
+.pm-period-btn.active { background:var(--bg); color:var(--t1); box-shadow:0 1px 3px rgba(0,0,0,0.3); }
+.pm-save { font-size:9px; font-weight:700; color:oklch(0.72 0.12 145); text-transform:uppercase; }
+.pm-input { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:10px 12px; font-size:13px; color:var(--t1); font-family:inherit; outline:none; }
+.pm-input:focus { border-color:var(--t3); }
+.pm-input::placeholder { color:var(--t3); }
+
+/* ── Footer ───────────────────────────────────── */
+footer {
+  border-top: 1px solid var(--brd-s); padding: 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+.foot-logo { display: flex; align-items: center; gap: 7px; }
+.foot-logomark {
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+.foot-logomark svg { width: 18px; height: 18px; }
+.foot-name { font-size: 14px; font-weight: 700; letter-spacing: -0.02em; }
+.foot-copy { font-size: 12px; color: var(--t3); }
+.foot-link { font-size: 12px; color: var(--t3); }
+.foot-link:hover { color: var(--t2); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <div class="nav-logomark">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3.5L10 16.5L17 3.5" stroke="oklch(0.72 0.12 70)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="nav-name">vesca</span>
+    </div>
+    <a href="#waitlist" class="btn-primary">Join the Waitlist</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">The deal operating system for creators — first 100 get a 14-day trial, then $19/mo locked forever</div>
+  <h1>Your brand deals deserve<br/><span>better than Gmail.</span></h1>
+  <p class="hero-sub">Vesca gives you a full deal pipeline, AI-written pitches, professional proposals, a scheduling calendar, and payment tracking in one place. Built for creators who run their sponsorships like a business.</p>
+  <div class="hero-ctas">
+    <a href="#waitlist" class="btn-primary">Start free — no credit card</a>
+    <a href="app.html" class="btn-ghost">See how it works</a>
+  </div>
+  <div class="hero-meta"><strong id="hero-count">340+</strong> creators already on the list &nbsp;·&nbsp; Free plan, no card needed</div>
+</section>
+
+<!-- BRANDS BAR -->
+<div class="brands-bar">
+  <div class="brands-label">Brands creators are landing with Vesca</div>
+  <div style="overflow:hidden">
+    <div class="marquee-inner">
+      <span class="brand-name">Nike</span>
+      <span class="brand-name">Notion</span>
+      <span class="brand-name">Shopify</span>
+      <span class="brand-name">Apple</span>
+      <span class="brand-name">YouTube</span>
+      <span class="brand-name">Loom</span>
+      <span class="brand-name">LinkedIn</span>
+      <span class="brand-name">Figma</span>
+      <span class="brand-name">Substack</span>
+      <span class="brand-name">Arc</span>
+      <span class="brand-name">Nike</span>
+      <span class="brand-name">Notion</span>
+      <span class="brand-name">Shopify</span>
+      <span class="brand-name">Apple</span>
+      <span class="brand-name">YouTube</span>
+      <span class="brand-name">Loom</span>
+      <span class="brand-name">LinkedIn</span>
+      <span class="brand-name">Figma</span>
+      <span class="brand-name">Substack</span>
+      <span class="brand-name">Arc</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-label">What Vesca does</div>
+  <div class="feat-list">
+
+    <div class="feat-item">
+      <div class="feat-item-label">AI Outreach</div>
+      <div class="feat-item-body">
+        <strong>A cold pitch, written in 10 seconds.</strong>
+        Tell Vesca the brand name and your angle. It writes a personalized email that sounds like you wrote it. One click sends it straight from your Gmail.
+      </div>
+    </div>
+
+    <div class="feat-item">
+      <div class="feat-item-label">Inbox Decoder</div>
+      <div class="feat-item-body">
+        <strong>Never misread a brand reply again.</strong>
+        Paste their email in. Vesca reads between the lines, tells you where they actually stand, and drafts your next response, so you always know the right move.
+      </div>
+    </div>
+
+    <div class="feat-item">
+      <div class="feat-item-label">Deal Pipeline</div>
+      <div class="feat-item-body">
+        <strong>Every deal, every stage, nothing slipping.</strong>
+        A Kanban board that moves deals from first pitch to payment received. See your whole business at a glance. Stale deal alerts flag anything you've gone quiet on before it dies.
+      </div>
+    </div>
+
+    <div class="feat-item">
+      <div class="feat-item-label">Deal Activity<br/>Timeline</div>
+      <div class="feat-item-body">
+        <strong>The full history of every deal, in one scroll.</strong>
+        Every email sent, reply decoded, status change, and note lands in a chronological timeline per deal. No more piecing together what happened from three different apps.
+      </div>
+    </div>
+
+    <div class="feat-item">
+      <div class="feat-item-label">
+        Calendar &amp; Scheduling
+        <div class="feat-item-label-badge">Pro</div>
+      </div>
+      <div class="feat-item-body">
+        <strong>Book brand calls without the back-and-forth.</strong>
+        Sync your Google or Apple Calendar. Share a scheduling link with brands, log call notes against the deal, and see upcoming sponsorship calls alongside your active pipeline, all in one view.
+      </div>
+    </div>
+
+    <div class="feat-item">
+      <div class="feat-item-label">Proposal Builder</div>
+      <div class="feat-item-body">
+        <strong>A polished PDF proposal in 60 seconds.</strong>
+        Enter your deliverables, rate, and timeline. Vesca builds a professional proposal and emails it directly to the brand. No Canva. No templates with your competitor's logo still on them.
+      </div>
+    </div>
+
+    <div class="feat-item">
+      <div class="feat-item-label">Payment Tracker</div>
+      <div class="feat-item-body">
+        <strong>Know exactly what you're owed, always.</strong>
+        Log invoices as sent, partial, or paid. See your total earnings at a glance. Stop digging through old emails to figure out if you've been paid.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- VIDEO SECTION -->
+<section class="video-section" style="padding-top:64px">
+  <div class="section-label">See it in action</div>
+  <div class="video-wrap">
+    <!--
+      SWAP VIDEO_ID below with your YouTube video ID.
+      Example: for https://www.youtube.com/watch?v=dQw4w9WgXcQ, use dQw4w9WgXcQ
+    -->
+    <iframe
+      src="https://www.youtube.com/embed/VIDEO_ID?rel=0&modestbranding=1&color=white"
+      title="Vesca — Deal Operating System for Creators"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
+  <p class="video-caption">See how creators go from cold pitch to paid deal in Vesca.</p>
+</section>
+
+<div class="divider" style="margin: 64px 28px 0"></div>
+
+<!-- HOW IT WORKS -->
+<section class="how" style="padding-top:64px">
+  <div class="section-label">How it works</div>
+  <div class="how-list">
+    <div class="how-item">
+      <div class="how-num">01</div>
+      <div class="how-title">Pick your target brand</div>
+      <div class="how-desc">Tell Vesca who you want to pitch. It writes the cold email in seconds, ready to send from your own inbox.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-num">02</div>
+      <div class="how-title">They reply. You know what to do.</div>
+      <div class="how-desc">Paste their email in. Vesca reads it, tells you where they stand, and drafts your next move.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-num">03</div>
+      <div class="how-title">Schedule the call, send the proposal</div>
+      <div class="how-desc">Share your scheduling link. Once they book, build the proposal in one click and email it straight to the brand.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-num">04</div>
+      <div class="how-title">Close it and get paid</div>
+      <div class="how-desc">Mark the deal won. Track the invoice. See it hit your earnings total. Move to the next one.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-num">05</div>
+      <div class="how-title">Nothing slips through</div>
+      <div class="how-desc">Stale deal alerts ping you when a deal goes quiet. Activity timelines show every touchpoint. Your pipeline runs itself.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider" style="margin:0 28px"></div>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" style="padding-top:64px">
+  <div class="section-label">What creators say</div>
+  <div class="quote">
+    <div class="quote-text">"I was managing 12 active deals in a Notes app. It was embarrassing. The proposal builder alone saves me three hours a week, and brands respond to me completely differently now. It's the first tool that treats me like a business owner."</div>
+    <div class="quote-attr">Alex Rivera — Tech Creator, 180K subscribers</div>
+  </div>
+  <div class="quote">
+    <div class="quote-text">"The first week I used Vesca, I closed an $8,000 deal. The AI wrote the pitch email, I read it over, and it was genuinely better than what I would have written myself. I'd been leaving that money on the table for months."</div>
+    <div class="quote-attr">Sarah Jenkins — Lifestyle Creator, 92K followers</div>
+  </div>
+  <div class="quote">
+    <div class="quote-text">"My whole problem was follow-ups. Deals would die because I just forgot to respond. Vesca flags exactly what needs attention and when. I stopped losing deals I'd already half-won."</div>
+    <div class="quote-attr">Marcus Thorne — Finance Creator, 310K followers</div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<div class="divider" style="margin:0 28px"></div>
+<section class="pricing">
+  <div class="section-label">Pricing</div>
+  <h2 class="pricing-headline">Your manager.<br/><span>Without the 20% cut.</span></h2>
+
+  <!-- Trial urgency strip -->
+  <div class="trial-strip">
+    <div class="trial-strip-left">
+      <span class="trial-strip-pulse"></span>
+      <div>
+        <div class="trial-strip-title">First 100 signups get a <strong>14-day free trial.</strong> After that, 7 days.</div>
+        <div class="trial-strip-sub">No credit card required for either. Pay only when your trial ends.</div>
+      </div>
+    </div>
+    <div class="trial-strip-right"><span id="founding-spots-left">—</span> founding spots left</div>
+  </div>
+
+  <!-- Billing toggle -->
+  <div class="billing-toggle">
+    <button id="toggle-monthly" class="toggle-btn active" onclick="setBilling('monthly')">Monthly</button>
+    <button id="toggle-annual" class="toggle-btn" onclick="setBilling('annual')">Annual <span class="toggle-save">Save 17%</span></button>
+  </div>
+
+  <!-- 4-plan grid -->
+  <div class="pricing-grid">
+
+    <!-- FREE -->
+    <div class="plan">
+      <div class="plan-top">
+        <div class="plan-badge-row"></div>
+        <div class="plan-name">Free</div>
+        <div class="plan-price">
+          <span class="plan-amount">$0</span>
+          <span class="plan-period">/mo</span>
+        </div>
+        <div class="plan-desc" style="margin-top:10px">Get started with no commitment. Track a handful of deals and try the AI before you upgrade.</div>
+      </div>
+      <div class="plan-sep"></div>
+      <div class="plan-feats">
+        <div class="pf pf-on">3 active deals</div>
+        <div class="pf pf-on">4 AI email generations / mo</div>
+        <div class="pf pf-on">Kanban pipeline</div>
+        <div class="pf pf-on">Deal activity timeline</div>
+        <div class="pf pf-on">Basic finance dashboard</div>
+        <div class="pf">Rate benchmarking</div>
+        <div class="pf">Proposal PDF</div>
+        <div class="pf">Calendar + scheduling</div>
+      </div>
+      <div class="plan-cta"><a href="auth.html" class="btn-ghost" style="width:100%;padding:9px 16px;text-align:center;display:block">Get started free</a></div>
+    </div>
+
+    <!-- PRO -->
+    <div class="plan plan-highlighted">
+      <div class="plan-top">
+        <div class="plan-badge-row"><span class="plan-badge">Most Popular</span></div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">
+          <span class="plan-amount" data-monthly="29" data-annual="24">$29</span>
+          <span class="plan-period">/mo</span>
+        </div>
+        <div class="plan-annual-note" style="display:none;font-size:11px;color:oklch(0.72 0.12 145);margin-top:2px;margin-bottom:2px">Billed $288/yr · 2 months free</div>
+        <div class="trial-tag">
+          <span class="trial-dot trial-dot-amber"></span>
+          <span id="pro-trial-label">14-day free trial · no card required</span>
+        </div>
+        <div class="founding-price-line">First 100 founders: <strong style="color:oklch(0.72 0.12 70)">$19/mo locked forever</strong></div>
+        <div class="plan-desc" style="margin-top:10px">Unlimited deals, unlimited AI, calendar scheduling, and rate benchmarking so you stop undercharging. This is where the business starts running itself.</div>
+      </div>
+      <div class="plan-sep"></div>
+      <div class="plan-feats">
+        <div class="pf pf-strong">Unlimited deals</div>
+        <div class="pf pf-strong">Unlimited AI emails + reply drafts</div>
+        <div class="pf pf-strong">Rate benchmarking by niche</div>
+        <div class="pf pf-strong">Stale deal alerts + follow-up flags</div>
+        <div class="pf pf-strong">Deal activity timeline</div>
+        <div class="pf pf-strong">Calendar + call scheduling</div>
+        <div class="pf pf-strong">Proposal PDF generator</div>
+        <div class="pf pf-strong">Shareable media kit link</div>
+      </div>
+      <div class="plan-cta"><button class="btn-primary" onclick="openPaymentModal('pro')" style="width:100%;padding:9px 16px">Start free trial →</button></div>
+    </div>
+
+    <!-- STUDIO -->
+    <div class="plan">
+      <div class="plan-top">
+        <div class="plan-badge-row"></div>
+        <div class="plan-name">Studio</div>
+        <div class="plan-price">
+          <span class="plan-amount" data-monthly="79" data-annual="65">$79</span>
+          <span class="plan-period">/mo</span>
+        </div>
+        <div class="plan-annual-note" style="display:none;font-size:11px;color:oklch(0.72 0.12 145);margin-top:2px;margin-bottom:2px">Billed $780/yr · 2 months free</div>
+        <div class="trial-tag">
+          <span class="trial-dot trial-dot-blue"></span>
+          <span id="studio-trial-label">7-day free trial · no card required</span>
+        </div>
+        <div class="plan-desc" style="margin-top:10px">Everything in Pro plus 3 seats, contract templates, and a white-label media kit your team can send with confidence.</div>
+      </div>
+      <div class="plan-sep"></div>
+      <div class="plan-feats">
+        <div class="pf pf-on">Everything in Pro</div>
+        <div class="pf pf-on">3 team seats (manager, editor, VA)</div>
+        <div class="pf pf-on">Contract templates</div>
+        <div class="pf pf-on">Manager access portal</div>
+        <div class="pf pf-on">Invoice generator</div>
+        <div class="pf pf-on">White-label media kit</div>
+        <div class="pf pf-on">Revenue forecasting</div>
+        <div class="pf">API access</div>
+      </div>
+      <div class="plan-cta"><button class="btn-ghost" onclick="openPaymentModal('studio')" style="width:100%;padding:9px 16px">Start free trial →</button></div>
+    </div>
+
+    <!-- SCALE -->
+    <div class="plan">
+      <div class="plan-top">
+        <div class="plan-badge-row"></div>
+        <div class="plan-name">Scale</div>
+        <div class="plan-price">
+          <span class="plan-amount" data-monthly="199" data-annual="165">$199</span>
+          <span class="plan-period">/mo</span>
+        </div>
+        <div class="plan-annual-note" style="display:none;font-size:11px;color:oklch(0.72 0.12 145);margin-top:2px;margin-bottom:2px">Billed $1,980/yr · 2 months free</div>
+        <div class="trial-tag">
+          <span class="trial-dot trial-dot-blue"></span>
+          <span id="scale-trial-label">7-day free trial · no card required</span>
+        </div>
+        <div class="plan-desc" style="margin-top:10px">Unlimited seats, a multi-creator dashboard, and a white-label client portal your whole roster runs through.</div>
+      </div>
+      <div class="plan-sep"></div>
+      <div class="plan-feats">
+        <div class="pf pf-on">Everything in Studio</div>
+        <div class="pf pf-on">Unlimited team seats</div>
+        <div class="pf pf-on">Multi-creator dashboard</div>
+        <div class="pf pf-on">Client billing &amp; invoicing</div>
+        <div class="pf pf-on">White-label client portal</div>
+        <div class="pf pf-on">Dedicated onboarding call</div>
+        <div class="pf pf-on">Priority SLA support</div>
+        <div class="pf pf-on">API access</div>
+      </div>
+      <div class="plan-cta"><button class="btn-ghost" onclick="openPaymentModal('scale')" style="width:100%;padding:9px 16px">Start free trial →</button></div>
+    </div>
+
+  </div>
+  <p style="font-size:12px;color:var(--t3);text-align:center;margin-top:20px">Free plan is free forever. No credit card until your Pro trial ends. First 100 founders lock in $19/mo — forever.</p>
+</section>
+
+<!-- WAITLIST -->
+<section id="waitlist" class="waitlist-section">
+  <div class="waitlist-inner">
+    <div class="section-label">Limited early access</div>
+    <h2>Stop leaving brand money<br/>on the table.</h2>
+    <p>Start free — 3 deals and 4 AI generations, forever. Or start a Pro trial: first 100 signups get 14 days free and lock in $19/mo forever. After 100, it's 7 days at $29/mo. No credit card for either.</p>
+
+    <div id="wl-count-row" style="font-size:12px;color:var(--t3);margin-bottom:20px">
+      <span id="wl-count-text">340+ creators already joined</span>
+    </div>
+
+    <form id="waitlist-form" onsubmit="joinWaitlist(event)" class="wl-form">
+      <input id="wl-email" type="email" required placeholder="your@email.com" class="wl-input"/>
+      <button id="btn-waitlist" type="submit" class="btn-primary wl-btn">Save My Spot</button>
+    </form>
+
+    <div id="wl-success" style="display:none;margin-top:16px">
+      <div class="success-box">
+        <div class="success-title">You're in.</div>
+        <p id="wl-position-text" style="color:var(--t2);margin-top:4px"></p>
+        <p style="margin-top:6px">Check your inbox. We just sent you a welcome note with what to expect next.</p>
+      </div>
+    </div>
+
+    <div id="wl-already" style="display:none">
+      <div class="already-box">You're already on the list. We'll be in touch before launch.</div>
+    </div>
+
+    <p class="wl-meta">No credit card. No spam. Unsubscribe anytime.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-logo">
+    <div class="foot-logomark">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3.5L10 16.5L17 3.5" stroke="oklch(0.72 0.12 70)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <span class="foot-name">vesca</span>
+  </div>
+  <span class="foot-copy">© 2026 Vesca. Built for creators who close.</span>
+  <a href="app.html" class="foot-link">Open App →</a>
+</footer>
+
+<!-- PAYMENT MODAL -->
+<div id="payment-modal" class="pm-overlay" onclick="if(event.target===this)closePaymentModal()">
+  <div class="pm-box">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px">
+      <div>
+        <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:3px">Get started</p>
+        <h3 id="pm-title" style="font-size:18px;font-weight:800;letter-spacing:-0.03em;margin:0;color:var(--t1)">Pro — $29/mo</h3>
+      </div>
+      <button onclick="closePaymentModal()" style="background:none;border:none;cursor:pointer;color:var(--t3);font-size:20px;line-height:1;padding:2px" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">✕</button>
+    </div>
+
+    <!-- Period toggle -->
+    <div class="pm-period-toggle">
+      <button id="pm-btn-monthly" class="pm-period-btn active" onclick="setModalPeriod('monthly')">Monthly</button>
+      <button id="pm-btn-annual" class="pm-period-btn" onclick="setModalPeriod('annual')">Annual <span class="pm-save">SAVE 17%</span></button>
+    </div>
+
+    <!-- Plan recap -->
+    <div id="pm-recap" style="background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:12px 14px;margin-bottom:16px">
+      <div id="pm-recap-plan" style="font-size:12px;font-weight:600;color:var(--t1)"></div>
+      <div id="pm-recap-price" style="font-size:11px;color:var(--t3);margin-top:3px"></div>
+    </div>
+
+    <!-- Step 1: email capture -->
+    <div id="pm-step-1">
+      <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:7px">Email address</label>
+      <input id="pm-email" type="email" class="pm-input" placeholder="your@email.com" style="margin-bottom:16px"/>
+      <button onclick="submitPaymentIntent()" class="btn-primary" style="width:100%;padding:11px;font-size:13px">Reserve my spot →</button>
+      <p style="font-size:11px;color:var(--t3);text-align:center;margin-top:10px;line-height:1.5">Billing is in final testing. We'll email you a secure payment link the moment it's live.</p>
+    </div>
+
+    <!-- Step 2: confirmation -->
+    <div id="pm-step-2" style="display:none;text-align:center;padding:6px 0">
+      <div style="width:44px;height:44px;border-radius:50%;background:oklch(0.2 0.07 145);border:1px solid oklch(0.35 0.1 145 / 0.5);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+        <span style="color:oklch(0.72 0.12 145);font-size:20px">✓</span>
+      </div>
+      <p style="font-size:15px;font-weight:700;letter-spacing:-0.02em;color:var(--t1);margin-bottom:6px">You're on the list</p>
+      <p id="pm-confirm-text" style="font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:6px"></p>
+      <p style="font-size:11px;color:var(--t3);margin-bottom:22px">Your founding rate is reserved. We'll never spam you.</p>
+      <button onclick="closePaymentModal()" class="btn-ghost" style="width:100%;padding:10px">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://vesca-backend-production.up.railway.app';
+
+// Load live waitlist count + update founding spots
+let foundingTrialDays = 14;
+(async () => {
+  try {
+    const res = await fetch(API + '/waitlist');
+    if (!res.ok) return;
+    const { count } = await res.json();
+    if (count > 0) {
+      document.getElementById('wl-count-text').textContent = `${count}+ creators already joined`;
+      document.getElementById('hero-count').textContent = `${count}+`;
+    }
+    const spotsLeft = Math.max(0, 100 - (count || 0));
+    const el = document.getElementById('founding-spots-left');
+    if (el) el.textContent = spotsLeft > 0 ? spotsLeft : '0';
+    const isFounder = (count || 0) < 100;
+    foundingTrialDays = isFounder ? 14 : 7;
+    const proLabel = document.getElementById('pro-trial-label');
+    if (proLabel) proLabel.textContent = `${foundingTrialDays}-day free trial · no card required`;
+    const foundingLine = document.querySelector('.founding-price-line');
+    if (foundingLine && !isFounder) {
+      foundingLine.innerHTML = '<span style="color:var(--t4);text-decoration:line-through">First 100 founders: $19/mo locked</span> <span style="color:var(--t3)">— spots claimed</span>';
+    }
+    const stripTitle = document.querySelector('.trial-strip-title');
+    if (stripTitle) {
+      stripTitle.innerHTML = isFounder
+        ? `You're in the first 100. You get a <strong>14-day free trial</strong> + $19/mo locked forever.`
+        : `Founding spots are claimed. You get a <strong>7-day free trial</strong>, then $29/mo.`;
+    }
+  } catch(_) {}
+})();
+
+async function joinWaitlist(e) {
+  e.preventDefault();
+  const email = document.getElementById('wl-email').value.trim();
+  const btn = document.getElementById('btn-waitlist');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(API + '/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json().catch(() => ({}));
+    document.getElementById('waitlist-form').style.display = 'none';
+    if (res.status === 409) {
+      document.getElementById('wl-already').style.display = 'block';
+    } else {
+      document.getElementById('wl-success').style.display = 'block';
+      if (data.position) {
+        document.getElementById('wl-position-text').textContent = `You're #${data.position} on the list.`;
+      }
+    }
+  } catch(err) {
+    btn.disabled = false;
+    btn.innerHTML = 'Save My Spot';
+    alert('Something went wrong. Please try again.');
+  }
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+
+// ── Billing period toggle ─────────────────────────────────
+let currentBilling = 'monthly';
+function setBilling(period) {
+  currentBilling = period;
+  const isAnnual = period === 'annual';
+  document.getElementById('toggle-monthly').classList.toggle('active', !isAnnual);
+  document.getElementById('toggle-annual').classList.toggle('active', isAnnual);
+  document.querySelectorAll('.plan-amount[data-monthly]').forEach(el => {
+    el.textContent = '$' + (isAnnual ? el.dataset.annual : el.dataset.monthly);
+  });
+  document.querySelectorAll('.plan-annual-note').forEach(el => {
+    el.style.display = isAnnual ? 'block' : 'none';
+  });
+}
+
+// ── Payment modal ─────────────────────────────────────────
+const PLAN_PRICES = {
+  pro:    { name: 'Pro',    monthly: 29,  annual: 24,  annualTotal: 288 },
+  studio: { name: 'Studio', monthly: 79,  annual: 65,  annualTotal: 780 },
+  scale:  { name: 'Scale',  monthly: 199, annual: 165, annualTotal: 1980 },
+};
+let modalPlan = 'pro';
+let modalPeriod = 'monthly';
+
+function openPaymentModal(plan) {
+  modalPlan = plan;
+  modalPeriod = currentBilling;
+  document.getElementById('pm-step-1').style.display = 'block';
+  document.getElementById('pm-step-2').style.display = 'none';
+  document.getElementById('pm-email').value = '';
+  updateModalDisplay();
+  const trialNote = document.querySelector('#pm-step-1 p');
+  if (trialNote) trialNote.innerHTML = `Starts with a <strong style="color:var(--t1)">${foundingTrialDays}-day free trial</strong>. No card charged until day ${foundingTrialDays + 1}. Billing launches soon — we'll email your payment link.`;
+  document.getElementById('payment-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePaymentModal() {
+  document.getElementById('payment-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function setModalPeriod(period) {
+  modalPeriod = period;
+  updateModalDisplay();
+}
+
+function updateModalDisplay() {
+  const p = PLAN_PRICES[modalPlan];
+  const isAnnual = modalPeriod === 'annual';
+  const price = isAnnual ? p.annual : p.monthly;
+  document.getElementById('pm-title').textContent = `${p.name} — $${price}/mo`;
+  document.getElementById('pm-recap-plan').textContent = `${p.name} plan`;
+  document.getElementById('pm-recap-price').textContent = isAnnual
+    ? `$${p.annual}/mo — billed $${p.annualTotal}/yr (save 17%)`
+    : `$${p.monthly}/mo — billed monthly`;
+  document.getElementById('pm-btn-monthly').classList.toggle('active', !isAnnual);
+  document.getElementById('pm-btn-annual').classList.toggle('active', isAnnual);
+}
+
+async function submitPaymentIntent() {
+  const email = document.getElementById('pm-email').value.trim();
+  if (!email || !email.includes('@')) { alert('Enter a valid email address.'); return; }
+  const btn = document.querySelector('#pm-step-1 .btn-primary');
+  btn.textContent = 'Reserving…'; btn.disabled = true;
+  try {
+    await fetch(API + '/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, plan: modalPlan, period: modalPeriod }),
+    });
+  } catch(_) {}
+  const p = PLAN_PRICES[modalPlan];
+  document.getElementById('pm-confirm-text').textContent =
+    `We'll email ${email} a secure payment link for ${p.name} when billing is ready.`;
+  document.getElementById('pm-step-1').style.display = 'none';
+  document.getElementById('pm-step-2').style.display = 'block';
+  btn.textContent = 'Reserve my spot →'; btn.disabled = false;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 36" width="130" height="36">
+  <rect width="130" height="36" rx="0" fill="#0d0d10"/>
+  <!-- V Mark -->
+  <path d="M6 8L16 28L26 8" stroke="#c9a040" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Wordmark -->
+  <text x="36" y="25" font-family="Geist, Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="700" font-size="17" letter-spacing="-0.6" fill="#ebebf0">vesca</text>
+</svg>

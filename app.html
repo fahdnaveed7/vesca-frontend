@@ -1,0 +1,2875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Vesca — Deal Operating System</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:     #0d0d10;
+    --bg-1:   #111116;
+    --bg-2:   #16161c;
+    --border: #1e1e26;
+    --brd-s:  #181820;
+    --t1:     #ebebf0;
+    --t2:     #8080a0;
+    --t3:     #44445a;
+    --t4:     #2c2c3c;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  * { font-family: 'Geist', system-ui, sans-serif !important; }
+  .material-symbols-outlined { font-family: 'Material Symbols Outlined' !important; font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; font-size: 17px; }
+
+  body { background: var(--bg); color: var(--t1); -webkit-font-smoothing: antialiased; }
+
+  /* ── Utility ─────────────────────────────────────────── */
+  .hidden { display: none !important; }
+
+  /* ── Pages ───────────────────────────────────────────── */
+  .page { display: none !important; }
+  .page.active { display: block !important; padding: 24px; }
+  /* Pages with centered max-width */
+  #page-finances.active  { display: block !important; max-width: 960px; margin: 0 auto; }
+  #page-calendar.active  { display: block !important; max-width: 1024px; margin: 0 auto; }
+  #page-profile.active   { display: flex !important; flex-direction: column; gap: 16px; max-width: 720px; margin: 0 auto; }
+  /* Modal shown state — override hidden */
+  #modal-new-deal:not(.hidden) { display: flex !important; }
+
+  /* ── Sidebar ─────────────────────────────────────────── */
+  #sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; width: 200px;
+    background: var(--bg); border-right: 1px solid var(--brd-s);
+    display: flex; flex-direction: column;
+    z-index: 50;
+  }
+  .sb-logo {
+    display: flex; align-items: center; gap: 8px;
+    padding: 16px 14px 14px;
+    border-bottom: 1px solid var(--brd-s);
+    flex-shrink: 0;
+  }
+  .sb-wordmark {
+    font-size: 15px; font-weight: 700; letter-spacing: -0.03em; color: var(--t1);
+  }
+  .sb-section-label {
+    padding: 16px 14px 6px;
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--t4);
+    flex-shrink: 0;
+  }
+  #sb-nav { display: flex; flex-direction: column; flex: 1; }
+  .nav-link {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; font-size: 13px; font-weight: 500;
+    color: var(--t3); cursor: pointer; border: none; background: none;
+    text-decoration: none; transition: color 0.1s, background 0.1s;
+    border-radius: 0; width: 100%; text-align: left;
+  }
+  .nav-link:hover { color: var(--t2); background: var(--bg-1); }
+  .nav-link.active {
+    color: oklch(0.72 0.12 70);
+    background: oklch(0.14 0.04 70 / 0.15);
+  }
+  .nav-link.active .material-symbols-outlined { color: oklch(0.72 0.12 70); }
+  .nav-link .material-symbols-outlined { font-size: 17px; color: inherit; }
+
+  /* ── Sidebar plan area ───────────────────────────────── */
+  .sb-plan-area {
+    padding: 10px 14px;
+    border-top: 1px solid var(--brd-s);
+    flex-shrink: 0;
+  }
+  .sb-plan-row {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+  }
+  .sb-actions {
+    padding: 10px 14px 12px;
+    display: flex; flex-direction: column; gap: 6px;
+    flex-shrink: 0;
+  }
+  .sb-footer {
+    padding: 8px 14px 12px;
+    border-top: 1px solid var(--brd-s);
+    display: flex; gap: 10px; flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .sb-footer a {
+    font-size: 10px; color: var(--t4); text-decoration: none;
+    transition: color 0.1s;
+  }
+  .sb-footer a:hover { color: var(--t3); }
+  .sb-footer span { font-size: 10px; color: var(--t4); }
+
+  /* ── Main content ────────────────────────────────────── */
+  main { margin-left: 200px; min-height: 100vh; }
+
+  /* ── Top bar ─────────────────────────────────────────── */
+  #topbar {
+    position: sticky; top: 0; z-index: 40;
+    height: 48px; padding: 0 24px;
+    background: var(--bg); border-bottom: 1px solid var(--brd-s);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  #page-title {
+    font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: var(--t1);
+  }
+  #hamburger {
+    display: none; background: none; border: none; cursor: pointer;
+    color: var(--t3); align-items: center; justify-content: center;
+  }
+
+  /* ── Spinner ─────────────────────────────────────────── */
+  .spinner { border: 2px solid rgba(235,235,240,0.1); border-top-color: var(--t1); border-radius: 50%; width: 15px; height: 15px; animation: spin 0.8s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Kanban ──────────────────────────────────────────── */
+  .kanban-col { min-height: 160px; }
+  .deal-card {
+    background: var(--bg-1);
+    border: 1px solid var(--brd-s);
+    border-radius: 4px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color 0.12s, box-shadow 0.12s;
+    margin-bottom: 6px;
+  }
+  .deal-card:hover {
+    border-color: var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .deal-card:active { cursor: grabbing; }
+  .deal-card-brand {
+    font-size: 13px; font-weight: 600; color: var(--t1);
+    margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .deal-status-badge {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; padding: 2px 6px; border-radius: 3px;
+    border: 1px solid; margin-bottom: 6px; display: inline-block;
+  }
+  .drag-over { border: 1px dashed var(--border) !important; background: var(--bg-2) !important; }
+
+  /* ── Form controls ───────────────────────────────────── */
+  textarea, input:not([type=checkbox]), select {
+    background: var(--bg-1);
+    color: var(--t1);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 13px;
+    padding: 8px 10px;
+    width: 100%;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.12s, box-shadow 0.12s;
+  }
+  textarea::placeholder, input::placeholder { color: var(--t3); }
+  textarea:focus, input:focus, select:focus {
+    box-shadow: 0 0 0 2px rgba(235,235,240,0.08);
+    border-color: var(--t2);
+  }
+  select option { background: var(--bg-1); }
+  textarea { resize: none; }
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--t1);
+    -webkit-box-shadow: 0 0 0px 1000px var(--bg-1) inset;
+    box-shadow: 0 0 0px 1000px var(--bg-1) inset;
+    caret-color: var(--t1);
+  }
+
+  /* ── Labels ──────────────────────────────────────────── */
+  .field-label {
+    display: block; margin-bottom: 6px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--t3);
+  }
+
+  /* ── Disabled ────────────────────────────────────────── */
+  button:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+  /* ── Mobile sidebar ──────────────────────────────────── */
+  #sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 40; }
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(-100%); transition: transform 0.22s ease; }
+    #sidebar.open { transform: translateX(0); }
+    main { margin-left: 0 !important; }
+    #hamburger { display: flex; }
+    #sidebar-overlay.open { display: block; }
+    .two-col { grid-template-columns: 1fr !important; }
+  }
+
+  /* ── Panel / card ────────────────────────────────────── */
+  .vs-panel {
+    background: var(--bg-1);
+    border: 1px solid var(--brd-s);
+    border-radius: 4px;
+  }
+  .vs-panel-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .vs-panel-head {
+    padding: 14px 20px; border-bottom: 1px solid var(--brd-s);
+    font-size: 13px; font-weight: 600; color: var(--t1);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────── */
+  .vs-btn-primary {
+    background: var(--t1); color: var(--bg);
+    border: none; border-radius: 4px;
+    font-size: 13px; font-weight: 600;
+    padding: 9px 16px;
+    cursor: pointer; transition: opacity 0.12s;
+    font-family: inherit;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .vs-btn-primary:hover { opacity: 0.88; }
+  .vs-btn-ghost {
+    background: none; color: var(--t2);
+    border: 1px solid var(--border); border-radius: 4px;
+    font-size: 13px; font-weight: 500;
+    padding: 9px 16px;
+    cursor: pointer; transition: border-color 0.12s, color 0.12s;
+    font-family: inherit;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .vs-btn-ghost:hover { border-color: var(--t3); color: var(--t1); }
+  .btn-full { width: 100%; }
+
+  /* ── Two-column layout ───────────────────────────────── */
+  .two-col {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px;
+  }
+  .two-col-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* ── Finances stat row ───────────────────────────────── */
+  .stat-row {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 1px; background: var(--brd-s);
+    border: 1px solid var(--brd-s); border-radius: 4px;
+    overflow: hidden; margin-bottom: 20px;
+  }
+  .stat-card { background: var(--bg-1); padding: 20px 24px; }
+  .stat-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--t3); margin-bottom: 8px;
+  }
+  .stat-value {
+    font-size: 26px; font-weight: 800; letter-spacing: -0.04em; color: var(--t1);
+  }
+
+  /* ── Profile stat row ────────────────────────────────── */
+  .profile-stat-row {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 1px; background: var(--brd-s);
+    border: 1px solid var(--brd-s); border-radius: 4px;
+    overflow: hidden; margin-bottom: 20px;
+  }
+  .profile-stat-card { background: var(--bg-1); padding: 16px 20px; }
+  .profile-stat-value { font-size: 22px; font-weight: 800; letter-spacing: -0.04em; color: var(--t1); margin-top: 6px; }
+
+  /* ── Plan badge in sidebar ───────────────────────────── */
+  .plan-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 3px 8px; border-radius: 2px; white-space: nowrap;
+  }
+  .plan-pill-founding { background: oklch(0.25 0.06 70); color: oklch(0.75 0.14 70); border: 1px solid oklch(0.4 0.1 70 / 0.5); }
+  .plan-pill-pro      { background: oklch(0.22 0.05 250); color: oklch(0.72 0.1 250); border: 1px solid oklch(0.35 0.08 250 / 0.5); }
+  .plan-pill-free     { background: var(--bg-2); color: var(--t3); border: 1px solid var(--border); }
+  .plan-pill-studio   { background: oklch(0.22 0.06 290); color: oklch(0.72 0.1 290); border: 1px solid oklch(0.35 0.08 290 / 0.5); }
+  .plan-pill-scale    { background: oklch(0.22 0.07 145); color: oklch(0.72 0.12 145); border: 1px solid oklch(0.35 0.1 145 / 0.5); }
+  .plan-pill-trial    { background: oklch(0.22 0.05 250); color: oklch(0.72 0.1 250);  border: 1px solid oklch(0.35 0.08 250 / 0.5); }
+  .plan-pill-expired  { background: oklch(0.22 0.05 15);  color: oklch(0.65 0.1 15);   border: 1px solid oklch(0.35 0.08 15 / 0.5); }
+  .upgrade-plan-selectable { transition: background 0.12s; }
+
+  /* ── AI usage bar ────────────────────────────────────── */
+  .ai-bar-wrap { padding: 0; }
+  .ai-bar-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--t4); display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .ai-bar-label span:last-child { color: var(--t3); font-weight: 500; text-transform: none; letter-spacing: 0; }
+  .ai-bar-track { height: 2px; background: var(--bg-2); border-radius: 1px; }
+  .ai-bar-fill  { height: 2px; background: var(--t3); border-radius: 1px; transition: width 0.3s; }
+  .ai-bar-fill.warn { background: oklch(0.65 0.14 70); }
+
+  /* ── Upgrade modal ───────────────────────────────────── */
+  .upgrade-modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 60; display: flex; align-items: center; justify-content: center; }
+  .upgrade-modal { background: var(--bg-1); border: 1px solid var(--border); border-radius: 4px; padding: 28px; max-width: 440px; width: 90%; }
+  .upgrade-modal h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--t1); margin-bottom: 8px; }
+  .upgrade-modal p { font-size: 13px; color: var(--t2); line-height: 1.6; margin-bottom: 20px; }
+  .upgrade-plan-list { display: flex; flex-direction: column; gap: 1px; background: var(--brd-s); border: 1px solid var(--brd-s); border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
+  .upgrade-plan-row { background: var(--bg-2); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .upgrade-plan-row.highlight { background: var(--bg-1); }
+  .upgrade-plan-name { font-size: 12px; font-weight: 600; color: var(--t1); }
+  .upgrade-plan-feat { font-size: 11px; color: var(--t3); margin-top: 2px; }
+  .upgrade-plan-price { font-size: 13px; font-weight: 700; color: var(--t1); }
+  .upgrade-actions { display: flex; gap: 8px; }
+  .upgrade-actions .vs-btn-primary { flex: 1; padding: 10px; font-size: 13px; }
+  .upgrade-actions .vs-btn-ghost   { padding: 10px 16px; font-size: 13px; }
+  .upgrade-select-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--t3); flex-shrink: 0; transition: border-color 0.12s, background 0.12s; }
+
+  /* ── Deal edit panel ─────────────────────────────────── */
+  .deal-edit-panel {
+    position: fixed; right: 0; top: 0; bottom: 0; width: 360px; max-width: 95vw;
+    background: var(--bg-1); border-left: 1px solid var(--border);
+    z-index: 55; display: flex; flex-direction: column;
+    transform: translateX(100%); transition: transform 0.2s ease;
+  }
+  .deal-edit-panel.open { transform: translateX(0); }
+  .dep-header { padding: 16px 18px; border-bottom: 1px solid var(--brd-s); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .dep-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+  .dep-footer { padding: 14px 18px; border-top: 1px solid var(--brd-s); display: flex; gap: 8px; flex-shrink: 0; }
+  .dep-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--t3); display: block; margin-bottom: 5px; }
+  .dep-overlay { position: fixed; inset: 0; z-index: 54; }
+  .stale-dot { width: 6px; height: 6px; border-radius: 50%; background: oklch(0.65 0.14 70); display: inline-block; margin-left: 4px; flex-shrink: 0; }
+  .deal-card-value { font-size: 11px; font-weight: 600; color: oklch(0.65 0.1 145); margin-top: 3px; }
+  .deal-card-followup { font-size: 10px; color: var(--t3); margin-top: 2px; }
+  .deal-card-followup.overdue { color: oklch(0.65 0.14 70); }
+
+  /* ── Calendar ────────────────────────────────────────── */
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); background: var(--brd-s); border: 1px solid var(--brd-s); border-radius: 4px; overflow: hidden; gap: 1px; }
+  .cal-day-header { background: var(--bg-2); padding: 8px 0; text-align: center; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--t3); }
+  .cal-day { background: var(--bg-1); min-height: 88px; padding: 7px 8px; display: flex; flex-direction: column; gap: 3px; cursor: pointer; transition: background 0.1s; }
+  .cal-day:hover { background: var(--bg-2); }
+  .cal-day-empty { background: var(--bg); }
+  .cal-today .cal-day-num { background: var(--t1); color: var(--bg); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+  .cal-day-num { font-size: 11px; font-weight: 600; color: var(--t2); width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
+  .cal-event { font-size: 10px; font-weight: 500; border-radius: 2px; padding: 2px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .cal-event-followup { background: oklch(0.2 0.06 70); color: oklch(0.72 0.12 70); }
+  .cal-event-call { background: oklch(0.2 0.05 250); color: oklch(0.72 0.1 250); }
+  .cal-event-won { background: oklch(0.2 0.05 145); color: oklch(0.65 0.1 145); }
+  .cal-event-created { background: var(--bg-2); color: var(--t3); }
+  .cal-event-more { font-size: 10px; color: var(--t4); }
+
+  /* ── Deal activity timeline ──────────────────────────── */
+  .activity-item { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--brd-s); }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--t3); flex-shrink: 0; margin-top: 4px; }
+  .activity-dot-action { background: oklch(0.72 0.1 250); }
+  .activity-dot-status { background: oklch(0.72 0.12 70); }
+  .activity-dot-won { background: oklch(0.72 0.12 145); }
+
+  /* ── Schedule call modal ─────────────────────────────── */
+  .sched-modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 80; display: flex; align-items: center; justify-content: center; }
+
+  /* ── Onboarding steps ────────────────────────────────── */
+  .onboard-step {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--bg-2); border: 1px solid var(--border); border-radius: 4px;
+    padding: 10px 12px; cursor: pointer;
+  }
+  .onboard-num {
+    width: 20px; height: 20px; border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+  }
+
+  /* ── Rate Tool ───────────────────────────────────────────── */
+  .rate-result-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 24px;
+  }
+  .rate-bar {
+    height: 4px;
+    background: var(--bg-1);
+    border-radius: 2px;
+    margin: 8px 0;
+    overflow: hidden;
+  }
+  .rate-bar-fill {
+    height: 100%;
+    background: oklch(0.72 0.12 70);
+    border-radius: 2px;
+  }
+</style>
+<script>
+  tailwind.config = { darkMode: "class", theme: { extend: {} } }
+</script>
+</head>
+<body>
+
+<!-- Mobile sidebar overlay -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+
+  <div class="sb-logo">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><path d="M3 3.5L10 16.5L17 3.5" stroke="oklch(0.72 0.12 70)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="sb-wordmark">vesca</span>
+  </div>
+
+  <div class="sb-section-label">Workspace</div>
+
+  <nav id="sb-nav">
+    <a class="nav-link active" onclick="navigate('deals')">
+      <span class="material-symbols-outlined">view_kanban</span>
+      Pipeline
+    </a>
+    <a class="nav-link" onclick="navigate('outreach')">
+      <span class="material-symbols-outlined">send</span>
+      Outreach
+    </a>
+    <a class="nav-link" onclick="navigate('inbox')">
+      <span class="material-symbols-outlined">move_to_inbox</span>
+      Inbox
+    </a>
+    <a class="nav-link" onclick="navigate('proposals')">
+      <span class="material-symbols-outlined">description</span>
+      Proposals
+    </a>
+    <a class="nav-link" onclick="navigate('finances')">
+      <span class="material-symbols-outlined">payments</span>
+      Finances
+    </a>
+    <a class="nav-link" onclick="navigate('calendar')">
+      <span class="material-symbols-outlined">calendar_month</span>
+      Calendar
+    </a>
+    <a class="nav-link" onclick="navigate('rates')">
+      <span class="material-symbols-outlined">payments</span>
+      Rate Tool
+    </a>
+    <a class="nav-link" onclick="navigate('profile')">
+      <span class="material-symbols-outlined">manage_accounts</span>
+      Profile
+    </a>
+  </nav>
+
+  <div class="sb-plan-area">
+    <div class="sb-plan-row">
+      <span id="sidebar-plan-pill" class="plan-pill plan-pill-trial">Free Trial</span>
+      <button onclick="openUpgradeModal()" id="sidebar-upgrade-btn" style="font-size:10px;font-weight:600;color:var(--t3);background:none;border:none;cursor:pointer;letter-spacing:0.02em" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Upgrade →</button>
+    </div>
+    <div id="ai-bar-wrap" class="ai-bar-wrap">
+      <div class="ai-bar-label">
+        <span>AI emails</span>
+        <span id="ai-bar-count">0 / 5</span>
+      </div>
+      <div class="ai-bar-track"><div id="ai-bar-fill" class="ai-bar-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="sb-actions">
+    <button onclick="openNewDealModal()" class="vs-btn-primary btn-full">
+      <span class="material-symbols-outlined" style="font-size:16px">add</span>
+      New Deal
+    </button>
+    <button onclick="signOut()" class="vs-btn-ghost btn-full" style="font-size:12px;padding:7px 16px">
+      <span class="material-symbols-outlined" style="font-size:14px">logout</span>
+      Sign Out
+    </button>
+  </div>
+
+  <div class="sb-footer">
+    <a href="https://getvesca.com/privacy" target="_blank" rel="noopener noreferrer">Privacy</a>
+    <a href="https://getvesca.com/terms" target="_blank" rel="noopener noreferrer">Terms</a>
+    <span>© 2026 Vesca</span>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main>
+
+  <!-- TOP BAR -->
+  <header id="topbar">
+    <div class="topbar-left">
+      <button id="hamburger" onclick="toggleSidebar()">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <span id="page-title">Pipeline</span>
+    </div>
+    <div class="topbar-right">
+      <span id="user-email" class="hidden" style="font-size:11px;color:var(--t3)"></span>
+      <div id="user-avatar" style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:var(--bg-2);border:1px solid var(--border);color:var(--t2)">?</div>
+    </div>
+  </header>
+
+  <!-- ───────── PAGE: DEALS ───────── -->
+  <div id="page-deals" class="page active">
+
+    <div id="onboarding" class="hidden" style="max-width:520px;background:var(--bg-1);border:1px solid var(--brd-s);border-radius:4px;padding:20px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="width:28px;height:28px;border-radius:4px;background:var(--bg-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <span class="material-symbols-outlined" style="font-size:16px;color:var(--t2)">waving_hand</span>
+        </div>
+        <div>
+          <p style="font-size:13px;font-weight:600;color:var(--t1)">Welcome to Vesca</p>
+          <p style="font-size:11px;color:var(--t3);margin-top:2px">Get your first deal set up in 3 steps</p>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="onboard-step" onclick="openNewDealModal()">
+          <div class="onboard-num" style="background:var(--t1);color:var(--bg)">1</div>
+          <div style="flex:1">
+            <p style="font-size:13px;font-weight:600;color:var(--t1)">Add your first brand deal</p>
+            <p style="font-size:11px;color:var(--t3);margin-top:2px">Track a brand you're already in talks with</p>
+          </div>
+          <span class="material-symbols-outlined" style="font-size:16px;color:var(--t4)">arrow_forward</span>
+        </div>
+        <div class="onboard-step" onclick="navigate('outreach')">
+          <div class="onboard-num" style="background:var(--bg-2);border:1px solid var(--border);color:var(--t3)">2</div>
+          <div style="flex:1">
+            <p style="font-size:13px;font-weight:600;color:var(--t1)">Generate a cold outreach email</p>
+            <p style="font-size:11px;color:var(--t3);margin-top:2px">AI writes your pitch to any brand in seconds</p>
+          </div>
+          <span class="material-symbols-outlined" style="font-size:16px;color:var(--t4)">arrow_forward</span>
+        </div>
+        <div class="onboard-step" onclick="navigate('proposals')">
+          <div class="onboard-num" style="background:var(--bg-2);border:1px solid var(--border);color:var(--t3)">3</div>
+          <div style="flex:1">
+            <p style="font-size:13px;font-weight:600;color:var(--t1)">Send your first proposal</p>
+            <p style="font-size:11px;color:var(--t3);margin-top:2px">Generate a professional PDF and email it to the brand</p>
+          </div>
+          <span class="material-symbols-outlined" style="font-size:16px;color:var(--t4)">arrow_forward</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="followup-widget" class="hidden" style="background:var(--bg-1);border:1px solid oklch(0.35 0.1 70 / 0.4);border-radius:4px;padding:14px 18px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="material-symbols-outlined" style="font-size:16px;color:oklch(0.65 0.14 70)">schedule</span>
+          <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:oklch(0.65 0.14 70)">Follow-ups Due</span>
+        </div>
+        <button onclick="document.getElementById('followup-widget').classList.add('hidden')" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:11px;font-family:inherit" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">dismiss</button>
+      </div>
+      <div id="followup-list" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+
+    <div id="kanban-board" style="display:flex;gap:0;overflow-x:auto;padding-bottom:16px;border:1px solid var(--brd-s);border-radius:4px;min-height:400px">
+      <!-- Columns rendered by JS -->
+    </div>
+  </div>
+
+  <!-- ───────── PAGE: OUTREACH ───────── -->
+  <div id="page-outreach" class="page">
+    <div class="two-col">
+      <div class="vs-panel">
+        <div class="vs-panel-head">Generate Outreach Email</div>
+        <div class="vs-panel-body">
+          <div>
+            <label class="field-label">Brand Name</label>
+            <input id="o-brand" type="text" placeholder="e.g. Nike"/>
+          </div>
+          <div>
+            <label class="field-label">Your Niche</label>
+            <input id="o-niche" type="text" placeholder="e.g. Fitness & Lifestyle"/>
+          </div>
+          <div>
+            <label class="field-label">Key Pitch</label>
+            <textarea id="o-pitch" rows="3" placeholder="What makes this collab unique?"></textarea>
+          </div>
+          <button onclick="generateOutreach()" id="btn-generate-outreach" class="vs-btn-primary btn-full">
+            <span class="material-symbols-outlined" style="font-size:16px">auto_awesome</span> Generate Email
+          </button>
+        </div>
+      </div>
+      <div class="vs-panel">
+        <div class="vs-panel-head">
+          Generated Email
+          <button onclick="copyOutreach()" style="font-size:11px;font-weight:500;color:var(--t3);background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:inherit" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">
+            <span class="material-symbols-outlined" style="font-size:14px">content_copy</span> Copy
+          </button>
+        </div>
+        <div class="vs-panel-body">
+          <textarea id="o-output" rows="10" placeholder="Your AI-generated email will appear here..."></textarea>
+          <div style="border-top:1px solid var(--brd-s);padding-top:14px;display:flex;flex-direction:column;gap:10px">
+            <label class="field-label">Send to Email</label>
+            <input id="o-to-email" type="email" placeholder="brand@company.com"/>
+            <button onclick="sendOutreach()" id="btn-send-outreach" class="vs-btn-ghost btn-full">
+              <span class="material-symbols-outlined" style="font-size:16px">send</span> Send Email & Create Deal
+            </button>
+            <div id="o-success" class="hidden" style="font-size:12px;display:flex;align-items:center;gap:6px;color:oklch(0.72 0.12 145)">
+              <span class="material-symbols-outlined" style="font-size:14px">check_circle</span> Email sent & deal created!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── PAGE: INBOX ───────── -->
+  <div id="page-inbox" class="page">
+    <div class="two-col">
+      <div class="vs-panel">
+        <div class="vs-panel-head">Analyze Inbound Email</div>
+        <div class="vs-panel-body">
+          <div class="two-col-inner">
+            <div>
+              <label class="field-label">From Name</label>
+              <input id="i-from-name" type="text" placeholder="Jane Smith"/>
+            </div>
+            <div>
+              <label class="field-label">From Email</label>
+              <input id="i-from-email" type="email" placeholder="jane@brand.com"/>
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Subject</label>
+            <input id="i-subject" type="text" placeholder="Partnership Opportunity"/>
+          </div>
+          <div>
+            <label class="field-label">Email Body</label>
+            <textarea id="i-body" rows="8" placeholder="Paste the full email text here..."></textarea>
+          </div>
+          <button onclick="analyzeInbound()" id="btn-analyze" class="vs-btn-primary btn-full">
+            <span class="material-symbols-outlined" style="font-size:16px">psychology</span> Analyze Email
+          </button>
+        </div>
+      </div>
+      <div class="vs-panel">
+        <div class="vs-panel-head">AI Analysis</div>
+        <div class="vs-panel-body">
+          <div id="i-results-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;gap:8px;color:var(--t4)">
+            <span class="material-symbols-outlined" style="font-size:36px">inbox</span>
+            <p style="font-size:13px">Analysis will appear here</p>
+          </div>
+          <div id="i-results" class="hidden" style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <p class="field-label">Brand Detected</p>
+                <p id="i-brand" style="font-size:15px;font-weight:700;color:var(--t1)"></p>
+              </div>
+              <span id="i-intent-badge" style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;border:1px solid"></span>
+            </div>
+            <div>
+              <p class="field-label">Summary</p>
+              <p id="i-summary" style="font-size:13px;color:var(--t2);line-height:1.6"></p>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                <p class="field-label" style="margin:0">Reply Suggestion</p>
+                <button onclick="copyReply()" style="font-size:11px;font-weight:500;color:var(--t3);background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:inherit" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">
+                  <span class="material-symbols-outlined" style="font-size:14px">content_copy</span> Copy
+                </button>
+              </div>
+              <textarea id="i-reply" rows="5"></textarea>
+            </div>
+            <button id="i-create-deal-btn" onclick="createDealFromInbox()" class="hidden vs-btn-ghost btn-full" style="font-weight:600">
+              Create Deal from This Email
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── PAGE: PROPOSALS ───────── -->
+  <div id="page-proposals" class="page">
+    <div class="two-col">
+      <div class="vs-panel">
+        <div class="vs-panel-head">Generate Proposal</div>
+        <div class="vs-panel-body">
+          <div>
+            <label class="field-label">Deal</label>
+            <select id="p-deal-id"><option value="">Select a deal...</option></select>
+          </div>
+          <div>
+            <label class="field-label">Deliverables</label>
+            <textarea id="p-deliverables" rows="3" placeholder="e.g. 2 YouTube videos, 3 Instagram posts"></textarea>
+          </div>
+          <div class="two-col-inner">
+            <div>
+              <label class="field-label">Price (USD)</label>
+              <input id="p-price" type="number" placeholder="5000"/>
+            </div>
+            <div>
+              <label class="field-label">Timeline</label>
+              <input id="p-timeline" type="text" placeholder="2 weeks"/>
+            </div>
+          </div>
+          <button onclick="generateProposal()" id="btn-gen-proposal" class="vs-btn-primary btn-full">
+            <span class="material-symbols-outlined" style="font-size:16px">description</span> Generate Proposal
+          </button>
+        </div>
+      </div>
+      <div class="vs-panel">
+        <div class="vs-panel-head">Proposal Output</div>
+        <div class="vs-panel-body">
+          <div id="p-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:192px;gap:8px;color:var(--t4)">
+            <span class="material-symbols-outlined" style="font-size:36px">description</span>
+            <p style="font-size:13px">Your proposal will appear here</p>
+          </div>
+          <textarea id="p-output" class="hidden" rows="12"></textarea>
+          <div id="p-actions" class="hidden" style="border-top:1px solid var(--brd-s);padding-top:14px;display:flex;flex-direction:column;gap:10px">
+            <button onclick="downloadPdf()" id="btn-pdf" class="vs-btn-ghost btn-full">
+              <span class="material-symbols-outlined" style="font-size:16px">download</span> Download PDF
+            </button>
+            <input id="p-to-email" type="email" placeholder="Send to: brand@company.com"/>
+            <button onclick="sendProposal()" id="btn-send-proposal" class="vs-btn-primary btn-full">
+              <span class="material-symbols-outlined" style="font-size:16px">send</span> Send Proposal
+            </button>
+            <div id="p-sent-msg" class="hidden" style="font-size:12px;display:flex;align-items:center;gap:6px;color:oklch(0.72 0.12 145)">
+              <span class="material-symbols-outlined" style="font-size:14px">check_circle</span> Proposal sent!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contract Generator — always visible -->
+    <div id="contract-section" style="margin-top:20px">
+      <div class="vs-panel">
+        <div class="vs-panel-head">Contract Generator</div>
+        <div class="vs-panel-body">
+          <p style="font-size:12px;color:var(--t3);margin-top:-4px;margin-bottom:16px">Generate a creator-friendly contract based on your proposal details.</p>
+          <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:1;min-width:200px">
+              <label class="field-label">Contract Type</label>
+              <select id="contract-type">
+                <option value="paid_post">Paid Post / Sponsored Content</option>
+                <option value="gifted">Gifted Collaboration</option>
+                <option value="youtube">YouTube Integration</option>
+                <option value="ambassador">Brand Ambassador</option>
+              </select>
+            </div>
+            <button onclick="generateContract()" id="btn-gen-contract" class="vs-btn-primary" style="padding:9px 18px;font-size:13px;white-space:nowrap">
+              <span class="material-symbols-outlined" style="font-size:16px">gavel</span> Generate Contract
+            </button>
+          </div>
+          <div id="contract-output-wrap" class="hidden" style="margin-top:16px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3)">Contract Draft</p>
+              <button onclick="copyContract()" style="font-size:11px;font-weight:500;color:var(--t3);background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:inherit" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">
+                <span class="material-symbols-outlined" style="font-size:14px">content_copy</span> Copy
+              </button>
+            </div>
+            <textarea id="contract-output" rows="14" style="font-family:monospace;font-size:12px;line-height:1.7"></textarea>
+            <div style="margin-top:10px;display:flex;gap:8px">
+              <button onclick="downloadContractPdf()" id="btn-contract-pdf" class="vs-btn-ghost btn-full" style="font-size:12px">
+                <span class="material-symbols-outlined" style="font-size:15px">download</span> Download Contract PDF
+              </button>
+            </div>
+            <p style="font-size:11px;color:var(--t4);margin-top:8px">Not legal advice. Edit before sending. Have both parties confirm via email or signature.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── PAGE: FINANCES ───────── -->
+  <div id="page-finances" class="page">
+    <div class="stat-row">
+      <div class="stat-card">
+        <p class="stat-label">Total Earned</p>
+        <p id="f-total" class="stat-value">$0.00</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-label">Pending Value</p>
+        <p id="f-pending" class="stat-value">$0</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-label">Deals Won</p>
+        <p id="f-won" class="stat-value">0</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-label">Avg Deal Value</p>
+        <p id="f-avg" class="stat-value">$0.00</p>
+      </div>
+    </div>
+    <!-- Invoice generator panel -->
+    <div class="vs-panel" style="margin-bottom:16px">
+      <div class="vs-panel-head">
+        <div>
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--t2)">Generate Invoice</p>
+          <p style="font-size:11px;color:var(--t3);font-weight:400;margin-top:2px">Create a PDF invoice for any deal</p>
+        </div>
+      </div>
+      <div class="vs-panel-body">
+        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <label class="field-label">Deal</label>
+            <select id="inv-deal-select">
+              <option value="">Select a deal...</option>
+            </select>
+          </div>
+          <button onclick="openInvoiceFromSelect()" class="vs-btn-primary" style="padding:9px 18px;font-size:13px;white-space:nowrap;display:flex;align-items:center;gap:6px">
+            <span class="material-symbols-outlined" style="font-size:16px">receipt_long</span> Generate Invoice
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="vs-panel" style="overflow:hidden">
+      <div class="vs-panel-head">Deals &amp; Payments</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;text-align:left;border-collapse:collapse">
+          <thead>
+            <tr style="background:var(--bg-2)">
+              <th style="padding:10px 20px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em">Brand</th>
+              <th style="padding:10px 20px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;text-align:center">Status</th>
+              <th style="padding:10px 20px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em">Value</th>
+              <th style="padding:10px 20px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em">Date</th>
+              <th style="padding:10px 20px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;text-align:right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="f-table" style="border-top:1px solid var(--brd-s)">
+            <tr><td colspan="5" style="padding:32px 20px;text-align:center;font-size:13px;color:var(--t3)">Loading deals...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── PAGE: CALENDAR ───────── -->
+<div id="page-calendar" class="page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button onclick="calNav(-1)" class="vs-btn-ghost" style="padding:5px 10px;font-size:14px">←</button>
+      <h2 id="cal-title" style="font-size:16px;font-weight:700;letter-spacing:-0.02em;min-width:160px;text-align:center"></h2>
+      <button onclick="calNav(1)" class="vs-btn-ghost" style="padding:5px 10px;font-size:14px">→</button>
+      <button onclick="calToday()" class="vs-btn-ghost" style="font-size:11px;padding:5px 10px">Today</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="syncToGoogleCal()" class="vs-btn-ghost" style="font-size:11px;display:flex;align-items:center;gap:5px">
+        <span class="material-symbols-outlined" style="font-size:14px">sync</span>Google Calendar
+      </button>
+      <button onclick="exportICS()" class="vs-btn-ghost" style="font-size:11px;display:flex;align-items:center;gap:5px">
+        <span class="material-symbols-outlined" style="font-size:14px">download</span>Export .ics (Apple)
+      </button>
+    </div>
+  </div>
+  <div id="cal-grid" class="cal-grid"></div>
+  <div style="display:flex;align-items:center;gap:16px;margin-top:14px;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--t3);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:2px;background:oklch(0.72 0.12 70);display:inline-block"></span>Follow-up due</span>
+    <span style="font-size:11px;color:var(--t3);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:2px;background:oklch(0.72 0.1 250);display:inline-block"></span>Scheduled call</span>
+    <span style="font-size:11px;color:var(--t3);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:2px;background:oklch(0.55 0.1 145);display:inline-block"></span>Deal won / deliverable</span>
+  </div>
+  <!-- Upcoming Calls list -->
+  <div style="margin-top:28px">
+    <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:12px">Upcoming Calls</p>
+    <div id="upcoming-calls-list"></div>
+  </div>
+</div>
+
+  <!-- ───────── PAGE: PROFILE ───────── -->
+  <div id="page-profile" class="page">
+
+    <div class="profile-stat-row">
+      <div class="profile-stat-card">
+        <p class="stat-label">Total Deals</p>
+        <p id="ps-total" class="profile-stat-value">—</p>
+      </div>
+      <div class="profile-stat-card">
+        <p class="stat-label">Deals Won</p>
+        <p id="ps-won" class="profile-stat-value" style="color:oklch(0.72 0.12 145)">—</p>
+      </div>
+      <div class="profile-stat-card">
+        <p class="stat-label">Total Earned</p>
+        <p id="ps-earned" class="profile-stat-value">—</p>
+      </div>
+      <div class="profile-stat-card">
+        <p class="stat-label">Avg Deal Value</p>
+        <p id="ps-avg" class="profile-stat-value">—</p>
+      </div>
+    </div>
+
+    <div class="vs-panel">
+      <div class="vs-panel-head">Creator Identity</div>
+      <div class="vs-panel-body">
+        <div class="two-col-inner">
+          <div>
+            <label class="field-label">Full Name</label>
+            <input id="p-name" type="text" placeholder="Your name"/>
+          </div>
+          <div>
+            <label class="field-label">Username</label>
+            <div style="position:relative">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--t3);pointer-events:none">@</span>
+              <input id="p-username" type="text" placeholder="yourname" style="padding-left:22px" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'');updateKitUrlPreview()"/>
+            </div>
+            <p style="font-size:11px;color:var(--t3);margin-top:4px">Used in your media kit URL · 3–30 chars</p>
+          </div>
+          <div>
+            <label class="field-label">Niche</label>
+            <select id="p-niche">
+              <option value="">Select niche...</option>
+              <option>Fitness & Health</option><option>Beauty & Skincare</option><option>Gaming</option>
+              <option>Tech & Gadgets</option><option>Lifestyle</option><option>Food & Cooking</option>
+              <option>Travel</option><option>Finance & Business</option><option>Fashion</option>
+              <option>Education</option><option>Entertainment</option><option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Follower Count</label>
+            <select id="p-followers">
+              <option value="">Select range...</option>
+              <option>Under 10K</option><option>10K – 50K</option><option>50K – 100K</option>
+              <option>100K – 500K</option><option>500K – 1M</option><option>1M+</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Platforms</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);cursor:pointer"><input type="checkbox" value="YouTube" class="platform-cb"/> YouTube</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);cursor:pointer"><input type="checkbox" value="TikTok" class="platform-cb"/> TikTok</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);cursor:pointer"><input type="checkbox" value="Instagram" class="platform-cb"/> Instagram</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);cursor:pointer"><input type="checkbox" value="Twitter/X" class="platform-cb"/> Twitter/X</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);cursor:pointer"><input type="checkbox" value="Twitch" class="platform-cb"/> Twitch</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);cursor:pointer"><input type="checkbox" value="Podcast" class="platform-cb"/> Podcast</label>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Bio / Pitch Summary</label>
+          <textarea id="p-bio" rows="3" placeholder="Tell brands who you are in 2-3 sentences..."></textarea>
+        </div>
+        <div>
+          <label class="field-label">Social Handles</label>
+          <div class="two-col-inner">
+            <div style="position:relative">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--t3);pointer-events:none">@</span>
+              <input id="p-handle-ig" type="text" placeholder="instagram" style="padding-left:24px"/>
+            </div>
+            <div style="position:relative">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--t3);pointer-events:none">@</span>
+              <input id="p-handle-tiktok" type="text" placeholder="tiktok" style="padding-left:24px"/>
+            </div>
+            <div style="position:relative">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--t3);pointer-events:none">@</span>
+              <input id="p-handle-youtube" type="text" placeholder="youtube channel" style="padding-left:24px"/>
+            </div>
+            <div style="position:relative">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--t3);pointer-events:none">@</span>
+              <input id="p-handle-twitter" type="text" placeholder="twitter/x" style="padding-left:24px"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vs-panel">
+      <div class="vs-panel-head">Rate Card</div>
+      <div class="vs-panel-body">
+        <p style="font-size:12px;color:var(--t3);margin-top:-4px">Used to auto-fill your proposals — see market ranges below each field</p>
+        <div class="two-col-inner">
+          <div>
+            <label class="field-label">Instagram Story</label>
+            <div style="position:relative">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);pointer-events:none">$</span>
+              <input id="p-rate-story" type="number" placeholder="0" style="padding-left:22px"/>
+            </div>
+            <p id="bench-story" style="font-size:11px;color:var(--t4);margin-top:4px">Market range: loading...</p>
+          </div>
+          <div>
+            <label class="field-label">Instagram Feed Post</label>
+            <div style="position:relative">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);pointer-events:none">$</span>
+              <input id="p-rate-feed" type="number" placeholder="0" style="padding-left:22px"/>
+            </div>
+            <p id="bench-feed" style="font-size:11px;color:var(--t4);margin-top:4px">Market range: loading...</p>
+          </div>
+          <div>
+            <label class="field-label">YouTube Integration</label>
+            <div style="position:relative">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);pointer-events:none">$</span>
+              <input id="p-rate-youtube" type="number" placeholder="0" style="padding-left:22px"/>
+            </div>
+            <p id="bench-youtube" style="font-size:11px;color:var(--t4);margin-top:4px">Market range: loading...</p>
+          </div>
+          <div>
+            <label class="field-label">TikTok Video</label>
+            <div style="position:relative">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);pointer-events:none">$</span>
+              <input id="p-rate-tiktok" type="number" placeholder="0" style="padding-left:22px"/>
+            </div>
+            <p id="bench-tiktok" style="font-size:11px;color:var(--t4);margin-top:4px">Market range: loading...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAN SECTION -->
+    <div class="vs-panel">
+      <div class="vs-panel-head">
+        <div>
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--t2)">Your Plan</p>
+          <p style="font-size:11px;color:var(--t3);font-weight:400;margin-top:2px">Current tier and usage</p>
+        </div>
+        <span id="profile-plan-pill" class="plan-pill plan-pill-trial">Free Trial</span>
+      </div>
+      <div class="vs-panel-body">
+        <div id="plan-features-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        <div id="plan-upgrade-cta" class="hidden" style="background:oklch(0.18 0.05 70 / 0.4);border:1px solid oklch(0.35 0.1 70 / 0.35);border-radius:4px;padding:14px 16px">
+          <p id="plan-upgrade-cta-title" style="font-size:12px;font-weight:600;color:oklch(0.72 0.12 70);margin-bottom:4px">You're on a 14-day trial</p>
+          <p style="font-size:12px;color:var(--t2);margin-bottom:10px;line-height:1.6">Upgrade to Pro for unlimited deals, unlimited AI, rate benchmarking, and more — founding members lock in $19/mo for life.</p>
+          <button onclick="openUpgradeModal()" class="vs-btn-primary" style="padding:8px 16px;font-size:12px">Choose a plan →</button>
+        </div>
+        <div id="plan-founding-msg" class="hidden" style="background:oklch(0.2 0.05 70 / 0.3);border:1px solid oklch(0.35 0.1 70 / 0.35);border-radius:4px;padding:12px 14px">
+          <p style="font-size:12px;font-weight:600;color:oklch(0.72 0.12 70);margin-bottom:3px">You're a Founding Member</p>
+          <p style="font-size:12px;color:var(--t2)">Your Pro access is active. Your price is locked forever. Thank you for being here early.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="vs-panel">
+      <div class="vs-panel-head">Outreach Defaults</div>
+      <div class="vs-panel-body">
+        <p style="font-size:12px;color:var(--t3);margin-top:-4px">Pre-fills the Outreach page so you never retype these</p>
+        <div>
+          <label class="field-label">Default Niche</label>
+          <input id="p-default-niche" type="text" placeholder="e.g. Fitness & Lifestyle"/>
+        </div>
+        <div>
+          <label class="field-label">Default Pitch</label>
+          <textarea id="p-default-pitch" rows="3" placeholder="e.g. I have 80K engaged fitness followers..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="vs-panel">
+      <div class="vs-panel-head">Account</div>
+      <div class="vs-panel-body">
+        <div>
+          <label class="field-label">Email</label>
+          <input id="p-email" type="email" disabled style="cursor:not-allowed;color:var(--t3)"/>
+        </div>
+        <button onclick="changePassword()" style="font-size:12px;font-weight:500;color:var(--t2);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;text-align:left" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t2)'">Change password →</button>
+      </div>
+    </div>
+
+    <button onclick="saveProfile()" id="btn-save-profile" class="vs-btn-primary btn-full" style="padding:12px;font-size:13px">
+      Save Profile
+    </button>
+
+    <!-- Media Kit -->
+    <div class="vs-panel" style="margin-top:8px">
+      <div class="vs-panel-head">
+        <div>
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--t2)">Media Kit</p>
+          <p style="font-size:11px;color:var(--t3);font-weight:400;margin-top:2px">Share your public profile with brands</p>
+        </div>
+      </div>
+      <div class="vs-panel-body">
+        <p style="font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.6">Your media kit is a public page brands can view — it shows your name, bio, niche, audience size, and social channels. No email or deal data is exposed.</p>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input id="kit-url-display" type="text" readonly style="flex:1;font-size:12px;font-family:monospace;color:var(--t3);background:var(--bg-2);cursor:default" value="Loading..."/>
+          <button onclick="copyKitUrl(this)" class="vs-btn-ghost" style="padding:8px 14px;font-size:12px;white-space:nowrap;display:flex;align-items:center;gap:5px">
+            <span class="material-symbols-outlined" style="font-size:14px">link</span> Copy Link
+          </button>
+          <a id="kit-preview-link" href="#" target="_blank" rel="noopener" class="vs-btn-ghost" style="padding:8px 14px;font-size:12px;white-space:nowrap;display:flex;align-items:center;gap:5px;text-decoration:none">
+            <span class="material-symbols-outlined" style="font-size:14px">open_in_new</span> Preview
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ───────── PAGE: RATES ───────── -->
+  <div id="page-rates" class="page">
+    <div style="max-width:760px">
+
+      <!-- Calculator panel -->
+      <div class="vs-panel" style="margin-bottom:20px">
+        <div class="vs-panel-head">What Should I Charge?</div>
+        <div class="vs-panel-body">
+          <p style="font-size:13px;color:var(--t2);margin-top:-4px;margin-bottom:16px">Select your niche, platform, and follower tier to see current market rates.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px">
+            <div>
+              <label class="field-label">Niche</label>
+              <select id="rt-niche" onchange="updateRateTool()">
+                <option value="">Select niche...</option>
+                <option>Fitness &amp; Health</option>
+                <option>Beauty &amp; Skincare</option>
+                <option>Gaming</option>
+                <option>Tech &amp; Gadgets</option>
+                <option>Lifestyle</option>
+                <option>Food &amp; Cooking</option>
+                <option>Travel</option>
+                <option>Finance &amp; Business</option>
+                <option>Fashion</option>
+                <option>Education</option>
+                <option>Entertainment</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Platform</label>
+              <select id="rt-platform" onchange="updateRateTool()">
+                <option value="">Select platform...</option>
+                <option value="story">Instagram Story</option>
+                <option value="feed">Instagram Feed Post</option>
+                <option value="youtube">YouTube Integration</option>
+                <option value="tiktok">TikTok Video</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Follower Tier</label>
+              <select id="rt-tier" onchange="updateRateTool()">
+                <option value="">Select tier...</option>
+                <option>Under 10K</option>
+                <option>10K – 50K</option>
+                <option>50K – 100K</option>
+                <option>100K – 500K</option>
+                <option>500K – 1M</option>
+                <option>1M+</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Result card — hidden until all 3 selected -->
+          <div id="rt-result" class="hidden" style="background:var(--bg-2);border:1px solid var(--border);border-radius:4px;padding:20px 24px">
+            <p id="rt-result-label" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:16px"></p>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+              <div>
+                <p style="font-size:10px;font-weight:600;color:var(--t3);margin-bottom:4px">LOW END</p>
+                <p id="rt-low" style="font-size:22px;font-weight:700;color:var(--t2);letter-spacing:-0.02em"></p>
+              </div>
+              <div style="border-left:1px solid var(--border);border-right:1px solid var(--border);padding:0 16px">
+                <p style="font-size:10px;font-weight:600;color:oklch(0.72 0.12 70);margin-bottom:4px">MID MARKET</p>
+                <p id="rt-mid" style="font-size:22px;font-weight:700;color:oklch(0.72 0.12 70);letter-spacing:-0.02em"></p>
+              </div>
+              <div>
+                <p style="font-size:10px;font-weight:600;color:var(--t3);margin-bottom:4px">TOP END</p>
+                <p id="rt-high" style="font-size:22px;font-weight:700;color:var(--t2);letter-spacing:-0.02em"></p>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button onclick="copyRateRange(this)" class="vs-btn-ghost" style="font-size:11px;padding:6px 12px;display:flex;align-items:center;gap:5px">
+                <span class="material-symbols-outlined" style="font-size:13px">content_copy</span> Copy range
+              </button>
+              <button onclick="useRateInProposal()" class="vs-btn-primary" style="font-size:11px;padding:6px 12px">
+                Use in Proposal →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Your rate vs market panel -->
+      <div class="vs-panel">
+        <div class="vs-panel-head">Your Rates vs. Market</div>
+        <div class="vs-panel-body">
+          <p style="font-size:12px;color:var(--t3);margin-top:-4px">Based on your rate card in Profile and the market data above. Select a follower tier above to see comparisons.</p>
+          <div id="rt-comparison" style="margin-top:16px">
+            <p style="font-size:12px;color:var(--t4)">Select a follower tier above to see how your rates compare.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- INVOICE MODAL -->
+<div id="invoice-modal" class="upgrade-modal-bg hidden" data-deal-id="">
+  <div class="upgrade-modal" style="max-width:480px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:4px">Invoice</p>
+        <h3 id="invoice-modal-title" style="margin:0">Brand Invoice</h3>
+      </div>
+      <button onclick="closeInvoiceModal()" style="background:none;border:none;cursor:pointer;color:var(--t3)" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div id="invoice-loading" class="hidden" style="padding:32px 0;text-align:center;font-size:13px;color:var(--t3)">Generating invoice...</div>
+    <div id="invoice-content" class="hidden">
+      <div style="background:var(--bg-1);border:1px solid var(--brd-s);border-radius:4px;padding:16px 20px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:11px;color:var(--t3)">Invoice #</span>
+          <span id="inv-number" style="font-size:11px;font-weight:700;color:var(--t1);font-family:monospace"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:11px;color:var(--t3)">Brand</span>
+          <span id="inv-brand" style="font-size:11px;font-weight:700;color:var(--t1)"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:11px;color:var(--t3)">Amount</span>
+          <span id="inv-amount" style="font-size:13px;font-weight:700;color:oklch(0.72 0.12 145)"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-size:11px;color:var(--t3)">Due</span>
+          <span id="inv-due" style="font-size:11px;color:var(--t2)"></span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="downloadInvoicePdf()" class="vs-btn-primary" style="flex:1;padding:10px;font-size:13px" id="inv-pdf-btn">
+          <span class="material-symbols-outlined" style="font-size:15px">download</span> Download PDF
+        </button>
+        <button onclick="closeInvoiceModal()" class="vs-btn-ghost" style="padding:10px 16px;font-size:13px">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW DEAL MODAL -->
+<div id="modal-new-deal" class="hidden" style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7)">
+  <div class="vs-panel" style="width:100%;max-width:360px;border-radius:4px">
+    <div class="vs-panel-head">
+      New Deal
+      <button onclick="closeNewDealModal()" style="color:var(--t3);background:none;border:none;cursor:pointer;line-height:1" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="vs-panel-body">
+      <div>
+        <label class="field-label">Brand Name</label>
+        <input id="nd-brand" type="text" placeholder="e.g. Nike"/>
+      </div>
+      <div class="two-col-inner">
+        <div>
+          <label class="field-label">Status</label>
+          <select id="nd-status">
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="replied">Replied</option>
+            <option value="negotiating">Negotiating</option>
+            <option value="won">Won</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Deal Value ($)</label>
+          <input id="nd-amount" type="number" min="0" placeholder="0"/>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Follow-up Date</label>
+        <input id="nd-followup" type="date"/>
+      </div>
+      <div>
+        <label class="field-label">Notes</label>
+        <textarea id="nd-notes" rows="2" placeholder="Any notes..."></textarea>
+      </div>
+      <button onclick="createDeal()" id="btn-create-deal" class="vs-btn-primary btn-full">
+        <span class="material-symbols-outlined" style="font-size:16px">add</span> Create Deal
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DEAL EDIT PANEL -->
+<div id="dep-overlay" class="dep-overlay hidden" onclick="closeDealEdit()"></div>
+<div id="deal-edit-panel" class="deal-edit-panel">
+  <div class="dep-header">
+    <div>
+      <p id="dep-brand" class="text-sm font-semibold">Deal</p>
+      <p id="dep-created" class="text-xs" style="color:var(--t3);margin-top:1px"></p>
+    </div>
+    <button onclick="closeDealEdit()" style="background:none;border:none;cursor:pointer;color:var(--t3)" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+  <div class="dep-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <label class="dep-label">Status</label>
+        <select id="dep-status">
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="replied">Replied</option>
+          <option value="negotiating">Negotiating</option>
+          <option value="won">Won</option>
+          <option value="paid">Paid</option>
+        </select>
+      </div>
+      <div>
+        <label class="dep-label">Deal Value ($)</label>
+        <input id="dep-amount" type="number" min="0" placeholder="0"/>
+      </div>
+    </div>
+    <div>
+      <label class="dep-label">Follow-up Date</label>
+      <input id="dep-followup" type="date"/>
+    </div>
+    <div>
+      <label class="dep-label">Notes</label>
+      <textarea id="dep-notes" rows="4" placeholder="Deal notes, contact info, terms discussed..."></textarea>
+    </div>
+    <div id="dep-stale-warning" class="hidden" style="background:oklch(0.18 0.05 70);border:1px solid oklch(0.35 0.1 70 / 0.4);border-radius:3px;padding:10px 12px">
+      <p style="font-size:12px;color:oklch(0.72 0.12 70);font-weight:600">No activity in <span id="dep-stale-days"></span> days</p>
+      <p style="font-size:11px;color:oklch(0.55 0.08 70);margin-top:2px">Consider following up or closing this deal.</p>
+    </div>
+    <!-- Activity timeline -->
+    <div style="margin-top:20px">
+      <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:10px">Activity</p>
+      <div id="dep-activity" style="max-height:160px;overflow-y:auto"></div>
+    </div>
+    <!-- Schedule call (Pro only) -->
+    <div id="dep-schedule-wrap" class="hidden" style="margin-top:16px;border-top:1px solid var(--brd-s);padding-top:16px">
+      <button onclick="openScheduleCall()" class="vs-btn-ghost" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px">
+        <span class="material-symbols-outlined" style="font-size:15px">video_call</span>
+        Schedule a call with this brand
+      </button>
+    </div>
+  </div>
+  <div class="dep-footer">
+    <button onclick="saveDealEdit()" id="btn-dep-save" class="vs-btn-primary" style="flex:1;padding:9px">Save Changes</button>
+    <button onclick="deleteDeal()" class="vs-btn-ghost" style="padding:9px 12px;color:oklch(0.55 0.12 20);border-color:oklch(0.25 0.06 20)" onmouseover="this.style.color='oklch(0.7 0.15 20)'" onmouseout="this.style.color='oklch(0.55 0.12 20)'">
+      <span class="material-symbols-outlined" style="font-size:15px">delete</span>
+    </button>
+  </div>
+</div>
+
+<!-- UPGRADE MODAL -->
+<div id="upgrade-modal" class="upgrade-modal-bg hidden">
+  <div class="upgrade-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:4px">Choose a Plan</p>
+        <h3 style="margin:0" id="upgrade-modal-title">Start your subscription</h3>
+      </div>
+      <button onclick="closeUpgradeModal()" style="background:none;border:none;cursor:pointer;color:var(--t3)" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- Step 1: Plan selection -->
+    <div id="upgrade-step-1">
+      <p id="upgrade-reason" style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px">Pick the plan that fits your business.</p>
+      <div style="display:flex;align-items:center;gap:0;background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:2px;width:fit-content;margin-bottom:14px">
+        <button id="modal-toggle-monthly" onclick="setModalBilling('monthly')" style="font-size:11px;font-weight:600;padding:5px 13px;border-radius:2px;border:none;cursor:pointer;background:var(--bg-1);color:var(--t1);font-family:inherit;transition:all 0.12s">Monthly</button>
+        <button id="modal-toggle-annual" onclick="setModalBilling('annual')" style="font-size:11px;font-weight:600;padding:5px 13px;border-radius:2px;border:none;cursor:pointer;background:none;color:var(--t3);font-family:inherit;transition:all 0.12s">Annual <span style="color:oklch(0.72 0.12 145);font-size:10px">save 17%</span></button>
+      </div>
+      <div class="upgrade-plan-list">
+        <div class="upgrade-plan-row upgrade-plan-selectable" id="uplan-pro" onclick="selectUpgradePlan('pro')">
+          <div>
+            <div class="upgrade-plan-name">Pro</div>
+            <div class="upgrade-plan-feat">Unlimited deals · Unlimited AI · Rate benchmarking · Media kit</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div id="uprice-pro" class="upgrade-plan-price">$29<span style="font-size:10px;font-weight:400;color:var(--t3)">/mo</span></div>
+            <div id="udot-pro" class="upgrade-select-dot"></div>
+          </div>
+        </div>
+        <div class="upgrade-plan-row" id="uplan-studio" style="background:var(--bg-1);opacity:0.6;cursor:default" onclick="">
+          <div>
+            <div class="upgrade-plan-name" style="display:flex;align-items:center;gap:7px">Studio <span style="font-size:9px;font-weight:700;background:var(--bg-2);color:var(--t3);border:1px solid var(--border);border-radius:2px;padding:1px 6px;letter-spacing:0.06em">COMING SOON</span></div>
+            <div class="upgrade-plan-feat">Pro + 3 team seats · Contracts · Invoicing · White-label kit</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="upgrade-plan-price">$79<span style="font-size:10px;font-weight:400;color:var(--t3)">/mo</span></div>
+            <div id="udot-studio" class="upgrade-select-dot"></div>
+          </div>
+        </div>
+        <div class="upgrade-plan-row upgrade-plan-selectable" id="uplan-scale" style="opacity:0.6;cursor:default" onclick="">
+          <div>
+            <div class="upgrade-plan-name" style="display:flex;align-items:center;gap:7px">Scale <span style="font-size:9px;font-weight:700;background:var(--bg-2);color:var(--t3);border:1px solid var(--border);border-radius:2px;padding:1px 6px;letter-spacing:0.06em">COMING SOON</span></div>
+            <div class="upgrade-plan-feat">Everything + multi-creator · Agency dashboard · SLA support</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="upgrade-plan-price">$199<span style="font-size:10px;font-weight:400;color:var(--t3)">/mo</span></div>
+            <div id="udot-scale" class="upgrade-select-dot"></div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--t3);margin-bottom:16px">Studio and Scale are in final development. <a href="https://getvesca.com/#waitlist" target="_blank" rel="noopener noreferrer" style="color:var(--t2);text-decoration:underline">Join the waitlist →</a></p>
+      <div style="background:oklch(0.2 0.05 70 / 0.5);border:1px solid oklch(0.35 0.1 70 / 0.4);border-radius:3px;padding:12px 14px;margin-bottom:18px">
+        <p style="font-size:11px;font-weight:700;color:oklch(0.72 0.12 70);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px">Founding Member Offer</p>
+        <p style="font-size:12px;color:var(--t2)">First 100 members get <strong style="color:var(--t1)">$19/mo locked forever</strong> on Pro. Spots 101–500 get 2 months free.</p>
+      </div>
+      <div class="upgrade-actions">
+        <button onclick="proceedToCheckout()" class="vs-btn-primary" style="flex:1;padding:10px">Continue to checkout →</button>
+        <button onclick="closeUpgradeModal()" class="vs-btn-ghost">Maybe later</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Billing coming soon -->
+    <div id="upgrade-step-2" class="hidden">
+      <div style="text-align:center;padding:8px 0 20px">
+        <div style="width:44px;height:44px;border-radius:50%;background:oklch(0.22 0.05 145);border:1px solid oklch(0.35 0.1 145 / 0.5);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+          <span class="material-symbols-outlined" style="color:oklch(0.72 0.12 145);font-size:20px">check_circle</span>
+        </div>
+        <h3 style="font-size:16px;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px">You're on the list</h3>
+        <p style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:6px">Billing is launching soon. We'll send your payment link to:</p>
+        <p id="upgrade-email-display" style="font-size:13px;font-weight:600;color:var(--t1);margin-bottom:16px"></p>
+        <p style="font-size:12px;color:var(--t3);line-height:1.5;margin-bottom:20px">You keep full access in the meantime.<br/>Your founding rate is reserved.</p>
+      </div>
+      <button onclick="closeUpgradeModal()" class="vs-btn-primary" style="width:100%;padding:10px">Got it</button>
+    </div>
+  </div>
+</div>
+
+<div id="sched-modal" class="sched-modal-bg hidden">
+  <div style="background:var(--bg-1);border:1px solid var(--border);border-radius:3px;padding:28px;max-width:440px;width:90%;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:3px">Pro Feature</p>
+        <h3 style="font-size:16px;font-weight:700;letter-spacing:-0.02em;margin:0">Schedule a call</h3>
+      </div>
+      <button onclick="closeScheduleCall()" style="background:none;border:none;cursor:pointer;color:var(--t3)" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label class="field-label">Call title</label>
+        <input id="sc-title" type="text" placeholder="e.g. Partnership Call with Nike"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <label class="field-label">Date</label>
+          <input id="sc-date" type="date"/>
+        </div>
+        <div>
+          <label class="field-label">Time</label>
+          <input id="sc-time" type="time"/>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Send invite to (email)</label>
+        <input id="sc-email" type="email" placeholder="brand@company.com"/>
+      </div>
+      <div>
+        <label class="field-label">Agenda / notes</label>
+        <textarea id="sc-agenda" rows="3" placeholder="What you'll cover on the call..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button onclick="submitScheduleCall()" class="vs-btn-primary" style="flex:1;padding:10px;font-size:13px">Send invite + add to calendar</button>
+        <button onclick="addToGoogleCalFromCall()" class="vs-btn-ghost" style="padding:10px 12px;font-size:12px;display:flex;align-items:center;gap:4px"><span class="material-symbols-outlined" style="font-size:14px">event</span>GCal</button>
+      </div>
+      <div id="sc-sent" class="hidden" style="background:oklch(0.18 0.05 145 / 0.5);border:1px solid oklch(0.35 0.1 145 / 0.4);border-radius:3px;padding:10px 12px;font-size:12px;color:oklch(0.72 0.12 145)">
+        ✓ Invite sent. Added to your Vesca calendar.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://vesca-backend-production.up.railway.app';
+const SUPABASE_URL  = 'https://sazgayxevzjaphubexwo.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhemdheXhldnpqYXBodWJleHdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0ODY4OTMsImV4cCI6MjA5MzA2Mjg5M30.NsYM4bQ0vt8077pOlUIwdCaXx8S2Q0_18t9zE-18jVU';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let USER_ID = null;
+let ACCESS_TOKEN = null;
+
+async function initAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
+    window.location.href = 'auth.html';
+    return;
+  }
+  USER_ID = session.user.id;
+  ACCESS_TOKEN = session.access_token;
+  const email = session.user.email || '';
+  const name = session.user.user_metadata?.name || email;
+  document.getElementById('user-email').textContent = email;
+  document.getElementById('user-email').classList.remove('hidden');
+  document.getElementById('user-avatar').textContent = (name[0] || '?').toUpperCase();
+
+  const meta = session.user.user_metadata || {};
+  let plan = meta.plan || 'trial';
+  // Check trial expiry using trial_days (14 for founding, 7 for standard)
+  if (plan === 'trial' && meta.trial_starts_at) {
+    const trialDays = meta.trial_days || 7;
+    const daysElapsed = (Date.now() - new Date(meta.trial_starts_at).getTime()) / 86400000;
+    if (daysElapsed > trialDays) plan = 'trial_expired';
+  }
+  applyPlanUI(plan);
+
+  // Stamp new users: check signup count to assign 14-day or 7-day trial
+  if (!meta.plan) {
+    try {
+      const r = await fetch('https://vesca-backend-production.up.railway.app/waitlist');
+      const { count } = await r.json().catch(() => ({ count: 999 }));
+      const trialDays = (count || 999) < 100 ? 14 : 7;
+      sb.auth.updateUser({ data: { plan: 'trial', trial_starts_at: new Date().toISOString(), trial_days: trialDays } });
+    } catch(_) {
+      sb.auth.updateUser({ data: { plan: 'trial', trial_starts_at: new Date().toISOString(), trial_days: 7 } });
+    }
+  }
+
+  sb.auth.onAuthStateChange((event, session) => {
+    if (session) {
+      ACCESS_TOKEN = session.access_token;
+      USER_ID = session.user.id;
+    } else if (event === 'SIGNED_OUT') {
+      window.location.href = 'auth.html';
+    }
+  });
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  window.location.href = 'auth.html';
+}
+
+const STATUSES = ['new','contacted','replied','negotiating','won','paid'];
+const STATUS_LABELS = { new:'New', contacted:'Contacted', replied:'Replied', negotiating:'Negotiating', won:'Won', paid:'Paid' };
+const STATUS_COLORS = {
+  new:         'border-neutral-800 text-neutral-500',
+  contacted:   'border-neutral-700 text-neutral-400',
+  replied:     'border-neutral-600 text-neutral-300',
+  negotiating: 'border-amber-900 text-amber-600',
+  won:         'border-emerald-900 text-emerald-600',
+  paid:        'border-emerald-800 text-emerald-500',
+};
+
+let deals = [];
+let currentProposalId = null;
+let creatorDisplayName = ''; // set when profile loads
+let inboxAnalysis = null;
+let editingDealId = null;
+
+// ── PLAN CONFIG ──────────────────────────────────────────
+const PLAN_CONFIG = {
+  trial:         { label: 'Free Trial',    pillClass: 'plan-pill-trial',    dealLimit: Infinity, aiLimit: Infinity, color: 'oklch(0.72 0.1 250)',  isTrial: true },
+  trial_expired: { label: 'Trial Expired', pillClass: 'plan-pill-expired',  dealLimit: 0,        aiLimit: 0,        color: 'var(--t3)',             isExpired: true },
+  free:          { label: 'Free',          pillClass: 'plan-pill-free',     dealLimit: 3,        aiLimit: 4,        color: 'var(--t3)' },
+  founding:      { label: 'Founding Member', pillClass: 'plan-pill-founding', dealLimit: Infinity, aiLimit: Infinity, color: 'oklch(0.72 0.12 70)' },
+  pro:           { label: 'Pro',           pillClass: 'plan-pill-pro',      dealLimit: Infinity, aiLimit: Infinity, color: 'oklch(0.72 0.1 250)' },
+  studio:        { label: 'Studio',        pillClass: 'plan-pill-studio',   dealLimit: Infinity, aiLimit: Infinity, color: 'oklch(0.72 0.1 290)' },
+  scale:         { label: 'Scale',         pillClass: 'plan-pill-scale',    dealLimit: Infinity, aiLimit: Infinity, color: 'oklch(0.72 0.12 145)' },
+};
+let userPlan = 'trial';
+
+// ── RATE BENCHMARK TABLE ─────────────────────────────────
+const RATE_BENCHMARKS = {
+  'Under 10K':     { story: '$20–$80',    feed: '$50–$150',    youtube: '$150–$400',   tiktok: '$25–$100' },
+  '10K – 50K':     { story: '$80–$250',   feed: '$150–$500',   youtube: '$400–$1,200', tiktok: '$100–$400' },
+  '50K – 100K':    { story: '$250–$600',  feed: '$500–$1,500', youtube: '$1,200–$3,000', tiktok: '$400–$1,000' },
+  '100K – 500K':   { story: '$600–$2,000', feed: '$1,500–$5,000', youtube: '$3,000–$10,000', tiktok: '$1,000–$3,500' },
+  '500K – 1M':     { story: '$2,000–$6,000', feed: '$5,000–$15,000', youtube: '$10,000–$30,000', tiktok: '$3,500–$10,000' },
+  '1M+':           { story: '$6,000+',    feed: '$15,000+',    youtube: '$30,000+',    tiktok: '$10,000+' },
+};
+
+// ── XSS ESCAPE ────────────────────────────────────────────
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+}
+
+// ── AI USAGE TRACKING ─────────────────────────────────────
+function aiUsesKey() {
+  if (!USER_ID) return null;
+  const m = new Date().toISOString().slice(0, 7);
+  return `vesca_ai_uses_${USER_ID}_${m}`;
+}
+function getAiUses() { const k = aiUsesKey(); return k ? parseInt(localStorage.getItem(k) || '0', 10) : 0; }
+function trackAiUse() { const k = aiUsesKey(); if (k) localStorage.setItem(k, getAiUses() + 1); updateAiBar(); }
+function updateAiBar() {
+  const cfg = PLAN_CONFIG[userPlan];
+  const used = getAiUses();
+  const isUnlimited = cfg.aiLimit === Infinity;
+  const pct = isUnlimited ? 0 : Math.min(100, (used / cfg.aiLimit) * 100);
+  const fill = document.getElementById('ai-bar-fill');
+  const count = document.getElementById('ai-bar-count');
+  if (!fill || !count) return;
+  if (isUnlimited) {
+    count.textContent = `${used} used`;
+    fill.style.width = '0%';
+    document.getElementById('ai-bar-wrap').style.display = 'none';
+  } else {
+    document.getElementById('ai-bar-wrap').style.display = 'block';
+    count.textContent = `${used} / ${cfg.aiLimit}`;
+    fill.style.width = pct + '%';
+    fill.classList.toggle('warn', pct >= 60);
+  }
+}
+
+// ── PLAN UI ──────────────────────────────────────────────
+function applyPlanUI(plan) {
+  userPlan = plan;
+  const cfg = PLAN_CONFIG[plan] || PLAN_CONFIG.trial;
+
+  // Sidebar pill
+  const pill = document.getElementById('sidebar-plan-pill');
+  if (pill) {
+    pill.className = 'plan-pill ' + cfg.pillClass;
+    pill.textContent = cfg.label;
+  }
+  // Show upgrade btn for unpaid plans
+  const upgradeBtn = document.getElementById('sidebar-upgrade-btn');
+  if (upgradeBtn) upgradeBtn.style.display = (['free','trial','trial_expired'].includes(plan)) ? '' : 'none';
+
+  // Profile pill
+  const profilePill = document.getElementById('profile-plan-pill');
+  if (profilePill) {
+    profilePill.className = 'plan-pill ' + cfg.pillClass;
+    profilePill.textContent = cfg.label;
+  }
+
+  // Plan features list
+  const featureMap = {
+    trial:         ['All Pro features — free for 7 days', 'Unlimited deals', 'Unlimited AI emails', 'Rate benchmarking', 'Proposal PDF', 'Shareable media kit'],
+    trial_expired: ['Your 14-day trial has ended', 'Upgrade to keep access', 'All work and data is saved'],
+    free:          ['3 active deals', '5 AI emails / month', 'Kanban pipeline', 'Basic finance dashboard'],
+    founding:      ['Unlimited deals', 'Unlimited AI emails', 'All Pro features', 'Price locked forever at $19/mo', 'Founding Member badge'],
+    pro:           ['Unlimited deals', 'Unlimited AI emails', 'Rate benchmarking', 'Stale deal alerts', 'Proposal PDF', 'Shareable media kit', 'Weekly digest'],
+    studio:        ['Everything in Pro', '3 team seats', 'Contract templates', 'Invoice generator', 'White-label media kit'],
+    scale:         ['Everything in Studio', 'Unlimited seats', 'Multi-creator dashboard', 'Agency billing', 'Priority SLA'],
+  };
+  const list = document.getElementById('plan-features-list');
+  if (list) {
+    list.innerHTML = (featureMap[plan] || featureMap.trial).map(f =>
+      `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2)">
+        <span style="color:${cfg.color};font-size:11px;flex-shrink:0">✓</span>${f}
+      </div>`
+    ).join('');
+  }
+
+  // Show/hide CTAs
+  const upgradeCta = document.getElementById('plan-upgrade-cta');
+  const foundingMsg = document.getElementById('plan-founding-msg');
+  const ctaTitle = document.getElementById('plan-upgrade-cta-title');
+  if (upgradeCta) upgradeCta.classList.toggle('hidden', !['free','trial','trial_expired'].includes(plan));
+  if (ctaTitle) {
+    if (plan === 'trial_expired') ctaTitle.textContent = 'Your trial has ended';
+    else if (plan === 'trial') ctaTitle.textContent = 'You\'re on a 14-day trial';
+    else ctaTitle.textContent = 'You\'re on the Free plan';
+  }
+  if (foundingMsg) foundingMsg.classList.toggle('hidden', plan !== 'founding');
+
+  updateAiBar();
+}
+
+// ── NAVIGATION ──────────────────────────────────────────
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const links = document.querySelectorAll('.nav-link');
+  const pageIndex = ['deals','outreach','inbox','proposals','finances','calendar','rates','profile'].indexOf(page);
+  if (links[pageIndex]) links[pageIndex].classList.add('active');
+  const titles = { deals:'Pipeline', outreach:'AI Outreach', inbox:'Smart Inbox', proposals:'Proposals', finances:'Finances', calendar:'Calendar', rates:'Rate Tool', profile:'My Profile' };
+  document.getElementById('page-title').textContent = titles[page] || page;
+  if (page === 'deals') loadDeals();
+  if (page === 'finances') loadFinances();
+  if (page === 'calendar') { if (!deals.length) loadDeals(); loadCalendar(); }
+  if (page === 'profile') loadProfile();
+  if (page === 'outreach') prefillOutreachDefaults();
+  if (page === 'proposals') prefillProposalDeals();
+  if (page === 'rates') loadRateTool();
+}
+
+// ── API HELPER ───────────────────────────────────────────
+async function api(method, path, body) {
+  const res = await fetch(API + path, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${ACCESS_TOKEN}`,
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (res.status === 401) {
+    await sb.auth.signOut();
+    window.location.href = 'auth.html';
+    return;
+  }
+  let data;
+  try { data = await res.json(); } catch(_) { data = {}; }
+  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+  return data;
+}
+
+function setLoading(btnId, loading, label) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.innerHTML = loading
+    ? `<span class="spinner"></span> Loading...`
+    : label;
+}
+
+// ── DEALS / KANBAN ────────────────────────────────────────
+async function loadDeals() {
+  try {
+    deals = await api('GET', '/deals');
+    renderFollowups();
+    renderKanban();
+  } catch(e) { console.error(e); }
+}
+
+function renderFollowups() {
+  const now = new Date();
+  const upcoming = deals.filter(d => {
+    if (!d.follow_up_date || d.status === 'won' || d.status === 'paid') return false;
+    const fu = new Date(d.follow_up_date);
+    const daysUntil = Math.ceil((fu - now) / 86400000);
+    return daysUntil <= 3; // overdue or due within 3 days
+  }).sort((a,b) => new Date(a.follow_up_date) - new Date(b.follow_up_date));
+
+  const widget = document.getElementById('followup-widget');
+  const list = document.getElementById('followup-list');
+  if (!widget || !list) return;
+  if (!upcoming.length) { widget.classList.add('hidden'); return; }
+  widget.classList.remove('hidden');
+  list.innerHTML = upcoming.map(d => {
+    const fu = new Date(d.follow_up_date);
+    const daysUntil = Math.ceil((fu - now) / 86400000);
+    const label = daysUntil < 0 ? `${Math.abs(daysUntil)}d overdue` : daysUntil === 0 ? 'today' : `in ${daysUntil}d`;
+    const color = daysUntil < 0 ? 'oklch(0.65 0.15 20)' : daysUntil === 0 ? 'oklch(0.65 0.14 70)' : 'var(--t2)';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid var(--brd-s)">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:18px;height:18px;border-radius:2px;background:var(--bg-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--t2);flex-shrink:0">${esc(d.brand_name?.[0]??'?').toUpperCase()}</div>
+        <span style="font-size:12px;font-weight:600;color:var(--t1)">${esc(d.brand_name)}</span>
+        <span style="font-size:10px;color:var(--t3)">${d.status}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <span style="font-size:11px;font-weight:600;color:${color}">${label}</span>
+        <button onclick="openDealEdit('${d.id}')" style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:2px;background:var(--bg-2);border:1px solid var(--border);color:var(--t2);cursor:pointer" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t2)'">Open</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+const STATUS_BADGE_STYLES = {
+  new:         'color:var(--t4);border-color:var(--brd-s);background:transparent',
+  contacted:   'color:var(--t3);border-color:var(--brd-s);background:transparent',
+  replied:     'color:var(--t2);border-color:var(--border);background:transparent',
+  negotiating: 'color:oklch(0.65 0.12 70);background:oklch(0.15 0.05 70 / 0.5);border-color:oklch(0.35 0.1 70 / 0.4)',
+  won:         'color:oklch(0.65 0.1 145);background:oklch(0.15 0.05 145 / 0.4);border-color:oklch(0.35 0.1 145 / 0.4)',
+  paid:        'color:oklch(0.72 0.12 145);background:oklch(0.2 0.06 145 / 0.5);border-color:oklch(0.4 0.12 145 / 0.5)',
+};
+
+function renderKanban() {
+  document.getElementById('onboarding').classList.toggle('hidden', deals.length > 0);
+  const board = document.getElementById('kanban-board');
+  board.innerHTML = STATUSES.map((status, i) => {
+    const colDeals = deals.filter(d => d.status === status);
+    const isLast = i === STATUSES.length - 1;
+    return `
+    <div style="flex-shrink:0;display:flex;flex-direction:column;width:196px;${isLast ? '' : 'border-right:1px solid var(--brd-s)'}">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--brd-s)">
+        <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3)">${STATUS_LABELS[status]}</span>
+        <span style="font-size:10px;font-weight:600;background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:1px 6px;color:var(--t4)">${colDeals.length}</span>
+      </div>
+      <div id="col-${status}" class="kanban-col"
+        style="flex:1;padding:10px;min-height:120px"
+        ondragover="event.preventDefault(); this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="onDrop(event, '${status}')">
+        ${colDeals.length === 0
+          ? `<div style="display:flex;align-items:center;justify-content:center;height:64px;border:1px dashed var(--brd-s);border-radius:4px;color:var(--t4);font-size:11px">Drop here</div>`
+          : colDeals.map(deal => {
+              const daysSince = Math.floor((Date.now() - new Date(deal.updated_at || deal.created_at)) / 86400000);
+              const isStale = daysSince >= 7 && deal.status !== 'won' && deal.status !== 'paid';
+              const followUp = deal.follow_up_date ? new Date(deal.follow_up_date) : null;
+              const followUpStr = followUp ? followUp.toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
+              const isOverdue = followUp && followUp < new Date();
+              const badgeStyle = STATUS_BADGE_STYLES[deal.status] || STATUS_BADGE_STYLES.new;
+              return `
+            <div class="deal-card"
+              draggable="true" ondragstart="onDragStart(event, '${deal.id}')"
+              onclick="if(!wasDragging) openDealEdit('${deal.id}')">
+              <div class="deal-card-brand">
+                <span>${esc(deal.brand_name)}</span>
+                ${isStale ? '<span class="stale-dot" title="No activity in 7+ days"></span>' : ''}
+              </div>
+              <span class="deal-status-badge" style="${badgeStyle}">${STATUS_LABELS[deal.status]}</span>
+              ${deal.amount ? `<p class="deal-card-value">$${Number(deal.amount).toLocaleString()}</p>` : ''}
+              ${followUpStr ? `<p class="deal-card-followup${isOverdue ? ' overdue' : ''}">↻ ${followUpStr}</p>` : `<p style="font-size:10px;color:var(--t4);margin-top:2px">${deal.created_at ? new Date(deal.created_at).toLocaleDateString() : '—'}</p>`}
+            </div>`;
+            }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let draggingId = null;
+let wasDragging = false;
+function onDragStart(e, id) { draggingId = id; wasDragging = true; }
+document.addEventListener('dragend', () => { setTimeout(() => { wasDragging = false; }, 50); });
+async function onDrop(e, status) {
+  e.preventDefault();
+  document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over'));
+  if (!draggingId) return;
+  const id = draggingId;
+  draggingId = null;
+  setTimeout(() => { wasDragging = false; }, 50);
+  try {
+    await api('PATCH', `/deals/${id}/status`, { status });
+    await loadDeals();
+  } catch(err) { alert(err.message); }
+}
+
+// ── NEW DEAL MODAL ────────────────────────────────────────
+function openNewDealModal() { document.getElementById('modal-new-deal').classList.remove('hidden'); }
+function closeNewDealModal() { document.getElementById('modal-new-deal').classList.add('hidden'); }
+
+async function createDeal() {
+  const brand_name = document.getElementById('nd-brand').value.trim();
+  const status = document.getElementById('nd-status').value;
+  const notes = document.getElementById('nd-notes').value.trim();
+  const amount = document.getElementById('nd-amount').value !== '' ? parseFloat(document.getElementById('nd-amount').value) : null;
+  const follow_up_date = document.getElementById('nd-followup').value || null;
+  if (!brand_name) return alert('Brand name is required');
+
+  // Deal limit gate
+  const cfg = PLAN_CONFIG[userPlan] || PLAN_CONFIG.trial;
+  if (cfg.dealLimit !== Infinity && deals.length >= cfg.dealLimit) {
+    closeNewDealModal();
+    openUpgradeModal(`You've reached the ${cfg.dealLimit}-deal limit on the Free plan. Upgrade to Pro for unlimited deals.`);
+    return;
+  }
+
+  setLoading('btn-create-deal', true, '<span class="material-symbols-outlined" style="font-size:16px">add</span> Create Deal');
+  try {
+    const newDeal = await api('POST', '/deals', { brand_name, status, notes, amount, follow_up_date });
+    if (newDeal?.id) logDealActivity(newDeal.id, 'action', `Deal created with ${brand_name}`);
+    closeNewDealModal();
+    document.getElementById('nd-brand').value = '';
+    document.getElementById('nd-notes').value = '';
+    document.getElementById('nd-amount').value = '';
+    document.getElementById('nd-followup').value = '';
+    await loadDeals();
+    navigate('deals');
+  } catch(e) { alert(e.message); }
+  finally { setLoading('btn-create-deal', false, '<span class="material-symbols-outlined" style="font-size:16px">add</span> Create Deal'); }
+}
+
+// ── OUTREACH ──────────────────────────────────────────────
+async function generateOutreach() {
+  // AI limit gate
+  const cfg = PLAN_CONFIG[userPlan] || PLAN_CONFIG.trial;
+  if (cfg.aiLimit !== Infinity && getAiUses() >= cfg.aiLimit) {
+    openUpgradeModal(`You've used all ${cfg.aiLimit} free AI emails this month. Upgrade to Pro for unlimited AI emails.`);
+    return;
+  }
+  const brand = document.getElementById('o-brand').value.trim();
+  const niche = document.getElementById('o-niche').value.trim();
+  const pitch = document.getElementById('o-pitch').value.trim();
+  if (!brand || !niche || !pitch) return alert('Fill in all fields');
+  setLoading('btn-generate-outreach', true, '<span class="material-symbols-outlined" style="font-size:16px">auto_awesome</span> Generate Email');
+  try {
+    const data = await api('POST', '/outreach/generate', { brand, niche, pitch });
+    document.getElementById('o-output').value = data.email_body;
+    document.getElementById('o-success').classList.add('hidden');
+    trackAiUse();
+  } catch(e) { alert(e.message); }
+  finally { setLoading('btn-generate-outreach', false, '<span class="material-symbols-outlined" style="font-size:16px">auto_awesome</span> Generate Email'); }
+}
+
+async function sendOutreach() {
+  const brand = document.getElementById('o-brand').value.trim();
+  const niche = document.getElementById('o-niche').value.trim();
+  const pitch = document.getElementById('o-pitch').value.trim();
+  const to_email = document.getElementById('o-to-email').value.trim();
+  if (!brand || !niche || !pitch || !to_email) return alert('Fill in all fields including email');
+  setLoading('btn-send-outreach', true, '<span class="material-symbols-outlined" style="font-size:16px">send</span> Sending...');
+  try {
+    await api('POST', '/outreach/send', { brand, niche, pitch, to_email });
+    document.getElementById('o-success').classList.remove('hidden');
+    trackAiUse();
+  } catch(e) { alert(e.message); }
+  finally { setLoading('btn-send-outreach', false, '<span class="material-symbols-outlined" style="font-size:16px">send</span> Send Email & Create Deal'); }
+}
+
+function copyOutreach() {
+  navigator.clipboard.writeText(document.getElementById('o-output').value);
+}
+
+// ── INBOX ─────────────────────────────────────────────────
+async function analyzeInbound() {
+  const cfg = PLAN_CONFIG[userPlan] || PLAN_CONFIG.trial;
+  if (cfg.aiLimit !== Infinity && getAiUses() >= cfg.aiLimit) {
+    openUpgradeModal(`You've used all ${cfg.aiLimit} free AI analyses this month. Upgrade to Pro for unlimited AI.`);
+    return;
+  }
+  const from_name = document.getElementById('i-from-name').value.trim();
+  const from_email = document.getElementById('i-from-email').value.trim();
+  const subject = document.getElementById('i-subject').value.trim();
+  const email_text = document.getElementById('i-body').value.trim();
+  if (!email_text) return alert('Paste the email body');
+  setLoading('btn-analyze', true, '<span class="material-symbols-outlined" style="font-size:16px">psychology</span> Analyzing...');
+  try {
+    const data = await api('POST', '/inbound/email', { from_name, from_email, subject, email_text });
+    inboxAnalysis = data;
+    document.getElementById('i-results-placeholder').classList.add('hidden');
+    document.getElementById('i-results').classList.remove('hidden');
+    document.getElementById('i-brand').textContent = data.analysis.brand_name || '—';
+    document.getElementById('i-summary').textContent = data.analysis.summary || '—';
+    document.getElementById('i-reply').value = data.reply_suggestion || '';
+    const badge = document.getElementById('i-intent-badge');
+    const isCollab = data.analysis.intent === 'collab';
+    badge.textContent = isCollab ? '✓ Collab Interest' : '✗ Not Interested';
+    badge.style.cssText = isCollab
+      ? 'border-radius:3px;border:1px solid;background:oklch(0.72 0.12 145 / 0.07);color:oklch(0.72 0.12 145);border-color:oklch(0.72 0.12 145 / 0.25)'
+      : 'border-radius:3px;border:1px solid;background:oklch(0.55 0.15 20 / 0.07);color:oklch(0.65 0.15 20);border-color:oklch(0.55 0.15 20 / 0.25)';
+    const createBtn = document.getElementById('i-create-deal-btn');
+    if (isCollab && !data.deal) createBtn.classList.remove('hidden');
+    else createBtn.classList.add('hidden');
+    trackAiUse();
+  } catch(e) { alert(e.message); }
+  finally { setLoading('btn-analyze', false, '<span class="material-symbols-outlined" style="font-size:16px">psychology</span> Analyze Email'); }
+}
+
+async function createDealFromInbox() {
+  if (!inboxAnalysis) return;
+  try {
+    await api('POST', '/deals', { brand_name: inboxAnalysis.analysis.brand_name, status: 'replied' });
+    document.getElementById('i-create-deal-btn').textContent = '✓ Deal Created';
+    document.getElementById('i-create-deal-btn').disabled = true;
+  } catch(e) { alert(e.message); }
+}
+
+function copyReply() {
+  navigator.clipboard.writeText(document.getElementById('i-reply').value);
+}
+
+// ── DEAL EDIT PANEL ───────────────────────────────────────
+async function openDealEdit(id) {
+  if (!deals.length) { await loadDeals(); }
+  const deal = deals.find(d => d.id === id);
+  if (!deal) return;
+  // Auto-seed activity log if empty (e.g. deals imported/seeded via backend)
+  const key = `vesca_activity_${id}`;
+  if (!localStorage.getItem(key)) {
+    logDealActivity(id, 'action', `Deal created with ${deal.brand_name}`);
+    if (deal.status !== 'new') logDealActivity(id, 'status', `Status: ${deal.status}`);
+  }
+  editingDealId = id;
+
+  document.getElementById('dep-brand').textContent = deal.brand_name;
+  document.getElementById('dep-created').textContent = 'Added ' + new Date(deal.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  document.getElementById('dep-status').value = deal.status;
+  document.getElementById('dep-amount').value = deal.amount || '';
+  document.getElementById('dep-followup').value = deal.follow_up_date ? deal.follow_up_date.split('T')[0] : '';
+  document.getElementById('dep-notes').value = deal.notes || '';
+
+  // Stale warning
+  const daysSince = Math.floor((Date.now() - new Date(deal.updated_at || deal.created_at)) / 86400000);
+  const staleWarn = document.getElementById('dep-stale-warning');
+  if (daysSince >= 7 && deal.status !== 'won' && deal.status !== 'paid') {
+    staleWarn.classList.remove('hidden');
+    document.getElementById('dep-stale-days').textContent = daysSince;
+  } else {
+    staleWarn.classList.add('hidden');
+  }
+
+  // Activity log
+  renderDealActivity(id);
+  // Show schedule call for Pro users
+  const schedWrap = document.getElementById('dep-schedule-wrap');
+  if (schedWrap) schedWrap.classList.toggle('hidden', !['pro','founding','studio','scale'].includes(userPlan));
+
+  document.getElementById('deal-edit-panel').classList.add('open');
+  document.getElementById('dep-overlay').classList.remove('hidden');
+}
+
+function closeDealEdit() {
+  document.getElementById('deal-edit-panel').classList.remove('open');
+  document.getElementById('dep-overlay').classList.add('hidden');
+  editingDealId = null;
+}
+
+async function saveDealEdit() {
+  if (!editingDealId) return;
+  const status       = document.getElementById('dep-status').value;
+  const amount       = document.getElementById('dep-amount').value !== '' ? parseFloat(document.getElementById('dep-amount').value) : null;
+  const follow_up_date = document.getElementById('dep-followup').value || null;
+  const notes        = document.getElementById('dep-notes').value.trim();
+  setLoading('btn-dep-save', true, 'Save Changes');
+  try {
+    await api('PATCH', `/deals/${editingDealId}`, { status, amount, follow_up_date, notes });
+    logDealActivity(editingDealId, 'status', `Status updated to ${status}${amount ? ` · $${Number(amount).toLocaleString()}` : ''}`);
+    closeDealEdit();
+    await loadDeals();
+  } catch(e) { alert(e.message); }
+  finally { setLoading('btn-dep-save', false, 'Save Changes'); }
+}
+
+async function deleteDeal() {
+  if (!editingDealId) return;
+  if (!confirm('Delete this deal? This cannot be undone.')) return;
+  try {
+    await api('DELETE', `/deals/${editingDealId}`);
+  } catch(e) { alert(e.message); }
+  finally { closeDealEdit(); await loadDeals(); }
+}
+
+// ── DEAL ACTIVITY ─────────────────────────────────────────
+function logDealActivity(dealId, type, description) {
+  const key = `vesca_activity_${dealId}`;
+  const log = JSON.parse(localStorage.getItem(key) || '[]');
+  log.unshift({ type, description, ts: new Date().toISOString() });
+  if (log.length > 50) log.length = 50;
+  localStorage.setItem(key, JSON.stringify(log));
+}
+
+function renderDealActivity(dealId) {
+  const key = `vesca_activity_${dealId}`;
+  const log = JSON.parse(localStorage.getItem(key) || '[]');
+  const el = document.getElementById('dep-activity');
+  if (!el) return;
+  if (!log.length) { el.innerHTML = `<p style="font-size:11px;color:var(--t4)">No activity recorded yet.</p>`; return; }
+  el.innerHTML = log.map(item => {
+    const dotClass = item.type === 'status' ? 'activity-dot-status' : item.type === 'action' ? 'activity-dot-action' : item.type === 'won' ? 'activity-dot-won' : '';
+    const date = new Date(item.ts).toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    return `<div class="activity-item"><span class="activity-dot ${dotClass}"></span><div><p style="font-size:11px;color:var(--t2)">${esc(item.description)}</p><p style="font-size:10px;color:var(--t4)">${date}</p></div></div>`;
+  }).join('');
+}
+
+// ── UPGRADE MODAL ─────────────────────────────────────────
+let selectedUpgradePlan = 'pro';
+let modalBillingMode = 'monthly';
+
+const UPGRADE_PRICES = {
+  pro:    { monthly: 29,  annual: 24  },
+  studio: { monthly: 79,  annual: 65  },
+  scale:  { monthly: 199, annual: 165 },
+};
+
+function setModalBilling(mode) {
+  modalBillingMode = mode;
+  const mBtn = document.getElementById('modal-toggle-monthly');
+  const aBtn = document.getElementById('modal-toggle-annual');
+  if (mBtn) { mBtn.style.background = mode === 'monthly' ? 'var(--bg-1)' : 'none'; mBtn.style.color = mode === 'monthly' ? 'var(--t1)' : 'var(--t3)'; }
+  if (aBtn) { aBtn.style.background = mode === 'annual'  ? 'var(--bg-1)' : 'none'; aBtn.style.color = mode === 'annual'  ? 'var(--t1)' : 'var(--t3)'; }
+  ['pro','studio','scale'].forEach(p => {
+    const el = document.getElementById('uprice-' + p);
+    if (!el) return;
+    const price = UPGRADE_PRICES[p][mode];
+    const suffix = mode === 'annual' ? '/mo · annual' : '/mo';
+    el.innerHTML = `$${price}<span style="font-size:10px;font-weight:400;color:var(--t3)"> ${suffix}</span>`;
+  });
+}
+
+function selectUpgradePlan(plan) {
+  if (plan === 'studio' || plan === 'scale') return; // coming soon
+  selectedUpgradePlan = plan;
+  ['pro','studio','scale'].forEach(p => {
+    const row = document.getElementById('uplan-' + p);
+    const dot = document.getElementById('udot-' + p);
+    const sel = p === plan;
+    if (row) row.style.background = sel ? 'oklch(0.2 0.05 250 / 0.35)' : (p === 'studio' ? 'var(--bg-1)' : 'var(--bg-2)');
+    if (dot) {
+      dot.style.borderColor = sel ? 'oklch(0.72 0.1 250)' : 'var(--t3)';
+      dot.style.background  = sel ? 'oklch(0.72 0.1 250)' : 'transparent';
+    }
+  });
+}
+
+function proceedToCheckout() {
+  const emailEl = document.getElementById('upgrade-email-display');
+  const userEmailEl = document.getElementById('user-email');
+  if (emailEl && userEmailEl) emailEl.textContent = userEmailEl.textContent || 'your email';
+  document.getElementById('upgrade-step-1').classList.add('hidden');
+  document.getElementById('upgrade-step-2').classList.remove('hidden');
+  document.getElementById('upgrade-modal-title').textContent = 'Billing launching soon';
+}
+
+function openUpgradeModal(reason) {
+  const el = document.getElementById('upgrade-modal');
+  if (!el) return;
+  document.getElementById('upgrade-step-1').classList.remove('hidden');
+  document.getElementById('upgrade-step-2').classList.add('hidden');
+  document.getElementById('upgrade-modal-title').textContent = 'Start your subscription';
+  if (reason) document.getElementById('upgrade-reason').textContent = reason;
+  setModalBilling('monthly');
+  selectUpgradePlan('pro');
+  el.classList.remove('hidden');
+}
+
+function closeUpgradeModal() {
+  document.getElementById('upgrade-modal').classList.add('hidden');
+}
+
+// ── RATE BENCHMARKING ─────────────────────────────────────
+function renderBenchmarks(followers) {
+  const data = RATE_BENCHMARKS[followers];
+  if (!data) {
+    ['story','feed','youtube','tiktok'].forEach(k => {
+      const el = document.getElementById('bench-' + k);
+      if (el) el.textContent = 'Set your follower count to see market ranges';
+    });
+    return;
+  }
+  const fields = { story: data.story, feed: data.feed, youtube: data.youtube, tiktok: data.tiktok };
+  Object.entries(fields).forEach(([k, range]) => {
+    const el = document.getElementById('bench-' + k);
+    if (el) {
+      el.textContent = 'Market range: ' + range;
+      el.style.color = 'oklch(0.5 0.06 145)';
+    }
+  });
+}
+
+// ── PROPOSALS ─────────────────────────────────────────────
+async function generateProposal() {
+  const deal_id = document.getElementById('p-deal-id').value.trim();
+  const deliverables = document.getElementById('p-deliverables').value.trim();
+  const price = document.getElementById('p-price').value.trim();
+  const timeline = document.getElementById('p-timeline').value.trim();
+  if (!deal_id || !deliverables || !price || !timeline) return alert('Fill in all fields');
+  setLoading('btn-gen-proposal', true, '<span class="material-symbols-outlined" style="font-size:16px">description</span> Generating...');
+  try {
+    const data = await api('POST', '/proposal/generate', { deal_id, deliverables, price, timeline });
+    currentProposalId = data.id;
+    document.getElementById('p-placeholder').classList.add('hidden');
+    document.getElementById('p-output').classList.remove('hidden');
+    document.getElementById('p-output').value = data.proposal_text;
+    document.getElementById('p-actions').classList.remove('hidden');
+    document.getElementById('p-sent-msg').classList.add('hidden');
+    document.getElementById('contract-section').classList.remove('hidden');
+  } catch(e) { alert(e.message); }
+  finally { setLoading('btn-gen-proposal', false, '<span class="material-symbols-outlined" style="font-size:16px">description</span> Generate Proposal'); }
+}
+
+async function downloadPdf() {
+  if (!currentProposalId) return;
+  setLoading('btn-pdf', true, 'Generating PDF...');
+  try {
+    const res = await fetch(API + '/proposal/pdf', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${ACCESS_TOKEN}`,
+      },
+      body: JSON.stringify({ proposal_id: currentProposalId }),
+    });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'PDF generation failed'); }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'proposal.pdf'; a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) { alert(e.message); }
+  finally { setLoading('btn-pdf', false, '<span class="material-symbols-outlined" style="font-size:16px">download</span> Download PDF'); }
+}
+
+async function sendProposal() {
+  if (!currentProposalId) return;
+  const to_email = document.getElementById('p-to-email').value.trim();
+  if (!to_email) return alert('Enter recipient email');
+  setLoading('btn-send-proposal', true, '<span class="material-symbols-outlined" style="font-size:16px">send</span> Sending...');
+  try {
+    await api('POST', '/proposal/send', { proposal_id: currentProposalId, to_email });
+    document.getElementById('p-sent-msg').classList.remove('hidden');
+  } catch(e) { alert(e.message); }
+  finally { setLoading('btn-send-proposal', false, '<span class="material-symbols-outlined" style="font-size:16px">send</span> Send Proposal'); }
+}
+
+// ── FINANCES ──────────────────────────────────────────────
+async function loadFinances() {
+  try {
+    const allDeals = await api('GET', '/deals');
+    const won = allDeals.filter(d => d.status === 'won' || d.status === 'paid');
+    const paid = allDeals.filter(d => d.status === 'paid');
+    const pending = allDeals.filter(d => d.status === 'negotiating' || d.status === 'won');
+
+    const totalEarned = won.reduce((s, d) => s + (d.amount || 0), 0);
+    const pendingVal  = pending.reduce((s, d) => s + (d.amount || 0), 0);
+
+    const fmt = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    document.getElementById('f-won').textContent    = won.length;
+    document.getElementById('f-total').textContent  = fmt(totalEarned);
+    document.getElementById('f-pending').textContent = fmt(pendingVal);
+    document.getElementById('f-avg').textContent    = won.length ? fmt(Math.round(totalEarned / won.length)) : '$0';
+
+    // Populate invoice deal dropdown (all deals, not just those with amounts)
+    const invSel = document.getElementById('inv-deal-select');
+    if (invSel) {
+      const prev = invSel.value;
+      invSel.innerHTML = '<option value="">Select a deal...</option>' +
+        allDeals.map(d => `<option value="${esc(d.id)}">${esc(d.brand_name)}${d.amount ? ' — $' + Number(d.amount).toLocaleString() : ''}</option>`).join('');
+      if (prev) invSel.value = prev;
+    }
+
+    const tbody = document.getElementById('f-table');
+    if (!allDeals.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:32px 20px;text-align:center;font-size:13px;color:var(--t3)">No deals yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = allDeals.map(deal => {
+      const statusBadge = {
+        paid:        'color:oklch(0.72 0.12 145);border-color:oklch(0.72 0.12 145 / 0.3)',
+        won:         'color:oklch(0.72 0.12 145);border-color:oklch(0.72 0.12 145 / 0.25)',
+        negotiating: 'color:oklch(0.72 0.12 70);border-color:oklch(0.72 0.12 70 / 0.25)',
+        new:         'color:var(--t3);border-color:var(--brd-s)',
+        contacted:   'color:var(--t2);border-color:var(--border)',
+        replied:     'color:var(--t2);border-color:var(--border)',
+      }[deal.status] || 'color:var(--t3);border-color:var(--brd-s)';
+
+      const canPay = deal.status === 'won' || deal.status === 'negotiating';
+      const canInvoice = !!deal.amount;
+      return `
+      <tr style="border-top:1px solid var(--brd-s)" onmouseover="this.style.background='var(--bg-1)'" onmouseout="this.style.background=''">
+        <td style="padding:10px 20px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:24px;height:24px;border-radius:3px;background:var(--bg-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--t2);flex-shrink:0">${esc(deal.brand_name?.[0] ?? '?').toUpperCase()}</div>
+            <span style="font-size:13px;font-weight:600;color:var(--t1)">${esc(deal.brand_name)}</span>
+          </div>
+        </td>
+        <td style="padding:10px 20px;text-align:center">
+          <span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;border-radius:3px;padding:2px 7px;border:1px solid;${statusBadge}">${deal.status.toUpperCase()}</span>
+        </td>
+        <td style="padding:10px 20px;font-size:13px;font-weight:600;color:${deal.amount ? 'oklch(0.72 0.12 145)' : 'var(--t4)'}">${deal.amount ? '$' + Number(deal.amount).toLocaleString() : '—'}</td>
+        <td style="padding:10px 20px;font-size:11px;color:var(--t3)">${new Date(deal.created_at).toLocaleDateString()}</td>
+        <td style="padding:10px 20px;text-align:right">
+          <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px">
+            ${canPay ? `<button onclick="markPaid('${deal.id}')" class="vs-btn-ghost" style="font-size:11px;padding:5px 10px;font-weight:600">Mark as Paid</button>` : ''}
+            ${canInvoice ? `<button onclick="openInvoiceModal('${deal.id}')" class="vs-btn-ghost" style="font-size:11px;padding:5px 10px;font-weight:600;display:flex;align-items:center;gap:4px"><span class="material-symbols-outlined" style="font-size:13px">receipt</span> Invoice</button>` : (!canPay ? '<span style="color:var(--t4)">—</span>' : '')}
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch(e) { console.error(e); }
+}
+
+// ── CALENDAR ──────────────────────────────────────────────
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+function loadCalendar() { renderCalendar(); }
+
+function calNav(dir) { calMonth += dir; if (calMonth > 11) { calMonth = 0; calYear++; } if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+function calToday() { calYear = new Date().getFullYear(); calMonth = new Date().getMonth(); renderCalendar(); }
+
+function renderCalendar() {
+  if (!USER_ID) return; // guard: USER_ID not set yet
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-title').textContent = `${MONTHS[calMonth]} ${calYear}`;
+  const firstDow = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const today = new Date();
+  // Build events map
+  const evMap = {};
+  const addEv = (date, ev) => { const k = date?.slice?.(0,10); if (!k) return; if (!evMap[k]) evMap[k] = []; evMap[k].push(ev); };
+  deals.forEach(d => {
+    if (d.follow_up_date) addEv(d.follow_up_date, { type:'followup', label: d.brand_name, id: d.id });
+    if (d.status === 'won' || d.status === 'paid') addEv(d.updated_at || d.created_at, { type:'won', label: `Won: ${d.brand_name}` });
+  });
+  // Scheduled calls from localStorage
+  const calls = JSON.parse(localStorage.getItem(`vesca_calls_${USER_ID}`) || '[]');
+  calls.forEach(c => addEv(c.date, { type:'call', label: c.title || `Call: ${c.brand}`, callId: c.id }));
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+    const h = document.createElement('div'); h.className = 'cal-day-header'; h.textContent = d; grid.appendChild(h);
+  });
+  for (let i = 0; i < firstDow; i++) { const e = document.createElement('div'); e.className = 'cal-day cal-day-empty'; grid.appendChild(e); }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = d === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+    const cell = document.createElement('div');
+    cell.className = `cal-day${isToday ? ' cal-today' : ''}`;
+    const evs = evMap[key] || [];
+    cell.innerHTML = `<div class="cal-day-num">${d}</div>${evs.slice(0,3).map(ev => `<div class="cal-event cal-event-${ev.type}" data-deal-id="${ev.id || ''}" onclick="event.stopPropagation();if(this.dataset.dealId) openDealEdit(this.dataset.dealId)">${esc(ev.label)}</div>`).join('')}${evs.length > 3 ? `<div class="cal-event-more">+${evs.length-3} more</div>` : ''}`;
+    grid.appendChild(cell);
+  }
+
+  // ── Upcoming Calls list ──────────────────────────────────
+  const callsEl = document.getElementById('upcoming-calls-list');
+  if (callsEl) {
+    const todayStr = new Date().toISOString().slice(0,10);
+    const upcoming = calls
+      .filter(c => c.date >= todayStr)
+      .sort((a,b) => a.date.localeCompare(b.date))
+      .slice(0, 8);
+    if (!upcoming.length) {
+      callsEl.innerHTML = `<p style="font-size:12px;color:var(--t4);padding:12px 0">No upcoming calls. Schedule a call from any deal card.</p>`;
+    } else {
+      callsEl.innerHTML = upcoming.map(c => {
+        const d = new Date(c.date + 'T' + (c.time || '00:00'));
+        const dateLabel = d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+        const timeLabel = c.time ? d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' }) : '';
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:3px;background:var(--bg-1);border:1px solid var(--brd-s);margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="material-symbols-outlined" style="font-size:16px;color:oklch(0.72 0.1 250)">video_call</span>
+            <div>
+              <p style="font-size:13px;font-weight:600;color:var(--t1)">${esc(c.title || 'Call')}</p>
+              ${c.brand ? `<p style="font-size:11px;color:var(--t3)">${esc(c.brand)}</p>` : ''}
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <p style="font-size:12px;font-weight:600;color:var(--t2)">${dateLabel}</p>
+            ${timeLabel ? `<p style="font-size:11px;color:var(--t3)">${timeLabel}</p>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+
+function syncToGoogleCal() {
+  const upcoming = deals.filter(d => d.follow_up_date && d.follow_up_date >= new Date().toISOString().slice(0,10)).sort((a,b) => a.follow_up_date.localeCompare(b.follow_up_date))[0];
+  if (!upcoming) { alert('No upcoming follow-ups to sync.'); return; }
+  const dt = upcoming.follow_up_date.replace(/-/g,'');
+  const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Follow up: '+upcoming.brand_name)}&dates=${dt}/${dt}&details=${encodeURIComponent('Vesca follow-up reminder for deal with '+upcoming.brand_name)}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+function exportICS() {
+  const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Vesca//Deal Calendar//EN','CALSCALE:GREGORIAN'];
+  deals.forEach(d => {
+    if (!d.follow_up_date) return;
+    const dt = d.follow_up_date.replace(/-/g,'');
+    lines.push('BEGIN:VEVENT',`UID:vesca-${d.id}@vesca`,`DTSTART;VALUE=DATE:${dt}`,`DTEND;VALUE=DATE:${dt}`,`SUMMARY:Follow up: ${d.brand_name}`,`DESCRIPTION:Deal status: ${d.status}`,`STATUS:CONFIRMED`,'END:VEVENT');
+  });
+  const calls = JSON.parse(localStorage.getItem(`vesca_calls_${USER_ID}`) || '[]');
+  calls.forEach(c => {
+    if (!c.date || !c.time) return;
+    const start = c.date.replace(/-/g,'') + 'T' + c.time.replace(/:/g,'') + '00';
+    lines.push('BEGIN:VEVENT',`UID:vesca-call-${c.id}@vesca`,`DTSTART:${start}`,`SUMMARY:${c.title || 'Call: '+c.brand}`,`DESCRIPTION:${c.agenda||''}`,`STATUS:CONFIRMED`,'END:VEVENT');
+  });
+  lines.push('END:VCALENDAR');
+  const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'vesca-calendar.ics'; a.click();
+}
+
+// ── SCHEDULE CALL ─────────────────────────────────────────
+function openScheduleCall() {
+  const deal = deals.find(d => d.id === editingDealId);
+  document.getElementById('sc-title').value = deal ? `Call with ${deal.brand_name}` : '';
+  document.getElementById('sc-date').value = '';
+  document.getElementById('sc-time').value = '';
+  document.getElementById('sc-email').value = '';
+  document.getElementById('sc-agenda').value = '';
+  document.getElementById('sc-sent').classList.add('hidden');
+  document.getElementById('sched-modal').classList.remove('hidden');
+}
+function closeScheduleCall() { document.getElementById('sched-modal').classList.add('hidden'); }
+
+async function submitScheduleCall() {
+  if (!USER_ID) return;
+  const title = document.getElementById('sc-title').value.trim();
+  const date = document.getElementById('sc-date').value;
+  const time = document.getElementById('sc-time').value;
+  const email = document.getElementById('sc-email').value.trim();
+  const agenda = document.getElementById('sc-agenda').value.trim();
+  if (!title || !date || !time || !email) { alert('Fill in title, date, time, and email.'); return; }
+  const calls = JSON.parse(localStorage.getItem(`vesca_calls_${USER_ID}`) || '[]');
+  const callObj = { id: Date.now().toString(), title, date, time, email, agenda, brand: deals.find(d=>d.id===editingDealId)?.brand_name || '', dealId: editingDealId };
+  calls.push(callObj);
+  localStorage.setItem(`vesca_calls_${USER_ID}`, JSON.stringify(calls));
+  if (editingDealId) {
+    logDealActivity(editingDealId, 'action', `Call scheduled for ${date} at ${time} — invite sent to ${email}`);
+    renderDealActivity(editingDealId);
+  }
+  const subject = encodeURIComponent(title);
+  const body = encodeURIComponent(`Hi,\n\nI'd love to schedule a call with you.\n\nDate: ${date}\nTime: ${time}\n\nAgenda:\n${agenda || 'Partnership discussion'}\n\nLet me know if this works.\n\nBest,\n[Your name]\n\n— Scheduled via Vesca`);
+  window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
+  document.getElementById('sc-sent').classList.remove('hidden');
+}
+
+function addToGoogleCalFromCall() {
+  const title = document.getElementById('sc-title').value.trim() || 'Call';
+  const date = document.getElementById('sc-date').value;
+  const time = document.getElementById('sc-time').value;
+  if (!date) { alert('Enter a date first.'); return; }
+  const dt = date.replace(/-/g,'') + (time ? 'T' + time.replace(/:/g,'') + '00' : '');
+  const dtEnd = date.replace(/-/g,'') + (time ? 'T' + String((parseInt(time.split(':')[0]) + 1) % 24).padStart(2,'0') + time.split(':')[1] + '00' : '');
+  const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${dt}/${dtEnd}&details=${encodeURIComponent(document.getElementById('sc-agenda').value)}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+async function markPaid(deal_id) {
+  try {
+    await api('PATCH', `/deals/${deal_id}`, { status: 'paid' });
+    await loadFinances();
+  } catch(e) { alert(e.message); }
+}
+
+// ── INVOICE GENERATOR ─────────────────────────────────────
+let currentInvoice = null;
+
+function openInvoiceFromSelect() {
+  const dealId = document.getElementById('inv-deal-select')?.value;
+  if (!dealId) return alert('Please select a deal first.');
+  openInvoiceModal(dealId);
+}
+
+async function openInvoiceModal(dealId) {
+  const modal = document.getElementById('invoice-modal');
+  const loading = document.getElementById('invoice-loading');
+  const content = document.getElementById('invoice-content');
+
+  modal.dataset.dealId = dealId;
+  loading.classList.remove('hidden');
+  content.classList.add('hidden');
+  modal.classList.remove('hidden');
+
+  try {
+    const inv = await api('POST', '/invoice/generate', { deal_id: dealId });
+    currentInvoice = inv;
+
+    document.getElementById('invoice-modal-title').textContent = inv.brand_name + ' Invoice';
+    document.getElementById('inv-number').textContent = inv.invoice_number;
+    document.getElementById('inv-brand').textContent = inv.brand_name;
+    document.getElementById('inv-amount').textContent = '$' + Number(inv.amount).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    document.getElementById('inv-due').textContent = inv.due_date;
+
+    loading.classList.add('hidden');
+    content.classList.remove('hidden');
+  } catch(e) {
+    closeInvoiceModal();
+    alert('Could not generate invoice: ' + e.message);
+  }
+}
+
+function closeInvoiceModal() {
+  document.getElementById('invoice-modal').classList.add('hidden');
+  currentInvoice = null;
+}
+
+async function downloadInvoicePdf() {
+  if (!currentInvoice) return;
+  const btn = document.getElementById('inv-pdf-btn');
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px">hourglass_empty</span> Generating...';
+
+  try {
+    const { data: session } = await sb.auth.getSession();
+    const token = session?.session?.access_token;
+    if (!token) throw new Error('Not authenticated — please refresh and try again.');
+    const creatorEmail = session?.session?.user?.email || '';
+
+    const resp = await fetch(`${API}/invoice/pdf`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({
+        deal_id: currentInvoice.deal_id,
+        invoice_number: currentInvoice.invoice_number,
+        due_date: currentInvoice.due_date,
+        creator_email: creatorEmail,
+      }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error || resp.statusText);
+    }
+
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `invoice-${currentInvoice.brand_name.toLowerCase().replace(/\s+/g, '-')}.pdf`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+    closeInvoiceModal();
+  } catch(e) {
+    alert('PDF download failed: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
+}
+
+// ── OUTREACH DEFAULTS ─────────────────────────────────────
+async function prefillOutreachDefaults() {
+  try {
+    const profile = await api('GET', '/profile');
+    if (profile.default_niche) document.getElementById('o-niche').value = profile.default_niche;
+    if (profile.default_pitch) document.getElementById('o-pitch').value = profile.default_pitch;
+  } catch(e) { console.warn('prefillOutreachDefaults:', e); }
+}
+
+function prefillProposalDeals() {
+  const sel = document.getElementById('p-deal-id');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Select a deal...</option>' +
+    deals.map(d => `<option value="${esc(d.id)}">${esc(d.brand_name)}${d.amount ? ' — $'+Number(d.amount).toLocaleString() : ''}</option>`).join('');
+  if (current) sel.value = current;
+}
+
+// ── PROFILE ───────────────────────────────────────────────
+async function loadProfile() {
+  try {
+    const [profile, stats] = await Promise.all([
+      api('GET', '/profile'),
+      api('GET', '/profile/stats'),
+    ]);
+
+    document.getElementById('ps-total').textContent  = stats.total_deals;
+    document.getElementById('ps-won').textContent    = stats.deals_won;
+    document.getElementById('ps-earned').textContent = '$' + (stats.total_earned || 0).toLocaleString();
+    document.getElementById('ps-avg').textContent    = stats.avg_deal_value ? '$' + stats.avg_deal_value.toLocaleString() : '$0';
+
+    document.getElementById('p-name').value           = profile.name || '';
+    if (profile.name) creatorDisplayName = profile.name;
+    document.getElementById('p-niche').value          = profile.niche || '';
+    document.getElementById('p-followers').value      = profile.follower_count || '';
+    document.getElementById('p-bio').value            = profile.bio || '';
+    document.getElementById('p-email').value          = profile.email || '';
+
+    const platforms = profile.platforms || [];
+    document.querySelectorAll('.platform-cb').forEach(cb => {
+      cb.checked = platforms.includes(cb.value);
+    });
+
+    document.getElementById('p-rate-story').value   = profile.rate_story || '';
+    document.getElementById('p-rate-feed').value    = profile.rate_feed || '';
+    document.getElementById('p-rate-youtube').value = profile.rate_youtube || '';
+    document.getElementById('p-rate-tiktok').value  = profile.rate_tiktok || '';
+
+    document.getElementById('p-default-niche').value = profile.default_niche || '';
+    document.getElementById('p-default-pitch').value = profile.default_pitch || '';
+
+    document.getElementById('p-handle-ig').value      = profile.handle_ig || '';
+    document.getElementById('p-handle-tiktok').value  = profile.handle_tiktok || '';
+    document.getElementById('p-handle-youtube').value = profile.handle_youtube || '';
+    document.getElementById('p-handle-twitter').value = profile.handle_twitter || '';
+    document.getElementById('p-username').value       = profile.username || '';
+
+    // Rate benchmarking
+    renderBenchmarks(profile.follower_count || '');
+
+    // Media kit URL
+    updateKitUrlPreview();
+
+    // Refresh plan UI with latest metadata
+    const { data: { user } } = await sb.auth.getUser();
+    const plan = user?.user_metadata?.plan || 'trial';
+    applyPlanUI(plan);
+  } catch(e) { console.error(e); }
+}
+
+async function saveProfile() {
+  setLoading('btn-save-profile', true, 'Saving...');
+  try {
+    const platforms = [...document.querySelectorAll('.platform-cb:checked')].map(cb => cb.value);
+    await api('PATCH', '/profile', {
+      name:           document.getElementById('p-name').value,
+      niche:          document.getElementById('p-niche').value,
+      follower_count: document.getElementById('p-followers').value,
+      bio:            document.getElementById('p-bio').value,
+      platforms,
+      rate_story:     Number(document.getElementById('p-rate-story').value) || null,
+      rate_feed:      Number(document.getElementById('p-rate-feed').value) || null,
+      rate_youtube:   Number(document.getElementById('p-rate-youtube').value) || null,
+      rate_tiktok:    Number(document.getElementById('p-rate-tiktok').value) || null,
+      default_niche:  document.getElementById('p-default-niche').value,
+      default_pitch:  document.getElementById('p-default-pitch').value,
+      handle_ig:      document.getElementById('p-handle-ig').value.replace('@','').trim(),
+      handle_tiktok:  document.getElementById('p-handle-tiktok').value.replace('@','').trim(),
+      handle_youtube: document.getElementById('p-handle-youtube').value.replace('@','').trim(),
+      handle_twitter: document.getElementById('p-handle-twitter').value.replace('@','').trim(),
+      username:       document.getElementById('p-username').value.trim() || null,
+    });
+    setLoading('btn-save-profile', false, 'Save Profile');
+    document.getElementById('btn-save-profile').textContent = 'Saved ✓';
+    setTimeout(() => document.getElementById('btn-save-profile').textContent = 'Save Profile', 2000);
+
+    // Refresh kit URL in case username changed
+    updateKitUrlPreview();
+
+    const name = document.getElementById('p-name').value;
+    if (name) document.getElementById('user-avatar').textContent = name[0].toUpperCase();
+  } catch(e) {
+    setLoading('btn-save-profile', false, 'Save Profile');
+    alert(e.message);
+  }
+}
+
+function updateKitUrlPreview() {
+  const username = document.getElementById('p-username')?.value.trim();
+  const kitUrl = username
+    ? `${location.origin}/kit.html?u=${encodeURIComponent(username)}`
+    : (USER_ID ? `${location.origin}/kit.html?id=${USER_ID}` : '');
+  const urlInput = document.getElementById('kit-url-display');
+  const previewLink = document.getElementById('kit-preview-link');
+  if (urlInput && kitUrl) urlInput.value = kitUrl;
+  if (previewLink && kitUrl) previewLink.href = kitUrl;
+}
+
+async function changePassword() {
+  const email = document.getElementById('p-email').value;
+  if (!email) return;
+  await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/auth.html' });
+  alert('Password reset email sent to ' + email);
+}
+
+// ── RATE TOOL ─────────────────────────────────────────────
+let rtProfile = null;
+
+async function loadRateTool() {
+  if (!rtProfile) {
+    try { rtProfile = await api('GET', '/profile'); } catch(e) { rtProfile = {}; }
+  }
+  updateRateTool();
+}
+
+function updateRateTool() {
+  const tier     = document.getElementById('rt-tier').value;
+  const platform = document.getElementById('rt-platform').value;
+  const result   = document.getElementById('rt-result');
+
+  if (!tier || !platform) { result.classList.add('hidden'); updateRateComparison(); return; }
+
+  const data = RATE_BENCHMARKS[tier];
+  if (!data) { result.classList.add('hidden'); updateRateComparison(); return; }
+
+  const raw = data[platform] || '';
+  // Parse range string like "$600–$2,000" or "$6,000+"
+  const parts = raw.replace(/\$/g,'').split('–');
+  const low  = parts[0]?.trim() || '—';
+  const high = parts[1]?.trim() || parts[0]?.trim() || '—';
+  // Mid = average of low and high numeric values
+  const lowNum  = parseFloat(low.replace(/[^0-9.]/g,'')) || 0;
+  const highNum = parseFloat(high.replace(/[^0-9.]/g,'')) || lowNum;
+  const mid = raw.endsWith('+') ? raw : '$' + Math.round((lowNum + highNum) / 2).toLocaleString();
+
+  const platformLabels = { story:'Instagram Story', feed:'Instagram Feed Post', youtube:'YouTube Integration', tiktok:'TikTok Video' };
+  document.getElementById('rt-result-label').textContent = `Market Range · ${platformLabels[platform]} · ${tier} followers`;
+  document.getElementById('rt-low').textContent  = '$' + low.replace('+', '');
+  document.getElementById('rt-mid').textContent  = mid;
+  document.getElementById('rt-high').textContent = '$' + high;
+  result.classList.remove('hidden');
+
+  updateRateComparison();
+}
+
+function updateRateComparison() {
+  const tier = document.getElementById('rt-tier').value;
+  const el   = document.getElementById('rt-comparison');
+  if (!tier || !rtProfile) {
+    el.innerHTML = '<p style="font-size:12px;color:var(--t4)">Select a follower tier above to see how your rates compare.</p>';
+    return;
+  }
+  const data = RATE_BENCHMARKS[tier];
+  if (!data) return;
+
+  const rows = [
+    { label: 'Instagram Story',    key: 'story',   profileRate: rtProfile.rate_story },
+    { label: 'Instagram Feed',     key: 'feed',    profileRate: rtProfile.rate_feed },
+    { label: 'YouTube Integration',key: 'youtube', profileRate: rtProfile.rate_youtube },
+    { label: 'TikTok Video',       key: 'tiktok',  profileRate: rtProfile.rate_tiktok },
+  ];
+
+  el.innerHTML = `
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="border-bottom:1px solid var(--brd-s)">
+          <th style="text-align:left;padding:6px 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3)">Format</th>
+          <th style="text-align:right;padding:6px 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3)">Your Rate</th>
+          <th style="text-align:right;padding:6px 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3)">Market Mid</th>
+          <th style="text-align:right;padding:6px 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3)">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(r => {
+          const raw = data[r.key] || '';
+          const parts = raw.replace(/\$/g,'').split('–');
+          const lowNum  = parseFloat((parts[0]||'').replace(/[^0-9.]/g,'')) || 0;
+          const highNum = parseFloat((parts[1]||parts[0]||'').replace(/[^0-9.]/g,'')) || lowNum;
+          const midNum  = Math.round((lowNum + highNum) / 2);
+          const midStr  = midNum ? '$' + midNum.toLocaleString() : '—';
+          const yours   = r.profileRate ? '$' + Number(r.profileRate).toLocaleString() : '—';
+          let status = '<span style="color:var(--t4);font-size:11px">Not set</span>';
+          if (r.profileRate && midNum) {
+            const diff = ((r.profileRate - midNum) / midNum) * 100;
+            if (diff >= 10)       status = '<span style="color:oklch(0.72 0.12 145);font-size:11px">✓ Above market</span>';
+            else if (diff <= -10) status = '<span style="color:oklch(0.72 0.12 70);font-size:11px">↑ Room to charge more</span>';
+            else                  status = '<span style="color:var(--t2);font-size:11px">≈ At market rate</span>';
+          }
+          return `<tr style="border-bottom:1px solid var(--brd-s)">
+            <td style="padding:10px 0;font-size:13px;color:var(--t1)">${r.label}</td>
+            <td style="padding:10px 0;font-size:13px;font-weight:600;color:var(--t1);text-align:right">${yours}</td>
+            <td style="padding:10px 0;font-size:13px;color:var(--t2);text-align:right">${midStr}</td>
+            <td style="padding:10px 0;text-align:right">${status}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function copyRateRange(btn) {
+  const low  = document.getElementById('rt-low').textContent;
+  const high = document.getElementById('rt-high').textContent;
+  const platform = document.getElementById('rt-platform');
+  const label = platform.options[platform.selectedIndex]?.text || '';
+  const text = `${label} rate: ${low} – ${high}`;
+  navigator.clipboard.writeText(text);
+  btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:13px">check</span> Copied!';
+  setTimeout(() => { btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:13px">content_copy</span> Copy range'; }, 2000);
+}
+
+function useRateInProposal() {
+  const mid = document.getElementById('rt-mid').textContent.replace(/[^0-9]/g,'');
+  navigate('proposals');
+  if (mid) setTimeout(() => { const p = document.getElementById('p-price'); if (p) p.value = mid; }, 100);
+}
+
+// ── MOBILE SIDEBAR ────────────────────────────────────────
+function toggleSidebar() {
+  const sidebar  = document.querySelector('aside');
+  const overlay  = document.getElementById('sidebar-overlay');
+  const isOpen   = sidebar.classList.contains('open');
+  if (isOpen) { closeSidebar(); } else {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+  }
+}
+
+function closeSidebar() {
+  document.querySelector('aside').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    if (window.innerWidth <= 768) closeSidebar();
+  });
+});
+
+// ── INIT ──────────────────────────────────────────────────
+// One-time listener — outside loadProfile() to prevent stacking on every nav visit
+document.getElementById('p-followers').addEventListener('change', e => renderBenchmarks(e.target.value));
+
+initAuth().then(() => {
+  if (USER_ID) navigate('deals');
+});
+
+// ── CONTRACTS ─────────────────────────────────────────────
+const CONTRACT_TEMPLATES = {
+  paid_post: `BRAND PARTNERSHIP AGREEMENT
+
+This agreement is between [CREATOR] ("Creator") and [BRAND] ("Brand").
+
+Deliverables: [DELIVERABLES]
+Compensation: [PRICE]
+Timeline: [TIMELINE]
+
+Payment Terms: 50% due upon signing, 50% due upon content delivery.
+Content Usage Rights: Brand may use content for 12 months, non-exclusively, on paid social media only.
+Exclusivity: Creator will not promote directly competing brands for 30 days after posting.
+Revisions: Up to 2 rounds of revisions included.
+Kill Fee: 25% of total compensation if Brand cancels after content production has begun.
+
+This agreement becomes binding when both parties confirm in writing (email accepted).
+
+Creator: [CREATOR]                    Date: [DATE]
+Brand:   [BRAND]                      Date: ___________`,
+
+  gifted: `GIFTED COLLABORATION AGREEMENT
+
+This agreement is between [CREATOR] ("Creator") and [BRAND] ("Brand").
+
+Deliverables: [DELIVERABLES]
+Compensation: Product gifting — no monetary exchange.
+Timeline: [TIMELINE]
+
+Content Ownership: Creator retains full ownership of all created content.
+Brand Usage: Brand may repost content with credit. No paid amplification without a separate written agreement.
+Disclosure: Creator will include #ad or #gifted in all posts per FTC guidelines.
+No Obligation: Creator is not obligated to post if the product does not meet reasonable expectations.
+No Negative Review Clause: Creator retains editorial independence.
+
+Creator: [CREATOR]                    Date: [DATE]
+Brand:   [BRAND]                      Date: ___________`,
+
+  youtube: `YOUTUBE INTEGRATION AGREEMENT
+
+This agreement is between [CREATOR] ("Creator") and [BRAND] ("Brand").
+
+Deliverables: [DELIVERABLES]
+Compensation: [PRICE]
+Timeline: [TIMELINE]
+
+Integration Placement: Mid-roll segment, minimum 60 seconds.
+Script Approval: Brand may review talking points. Final creative decisions rest with Creator.
+Payment Terms: 50% upon agreement, 50% upon video publication.
+Content Usage Rights: Brand may use the integration segment for paid promotion for 6 months.
+Exclusivity: No competing brand integrations in videos published within 2 weeks of this video.
+Revisions: One round of script revisions included.
+Performance: No refunds based on view count or engagement metrics.
+
+Creator: [CREATOR]                    Date: [DATE]
+Brand:   [BRAND]                      Date: ___________`,
+
+  ambassador: `BRAND AMBASSADOR AGREEMENT
+
+This agreement is between [CREATOR] ("Creator") and [BRAND] ("Brand").
+
+Deliverables: [DELIVERABLES]
+Compensation: [PRICE]
+Timeline: [TIMELINE] (ongoing)
+
+Posting Frequency: As outlined in deliverables above.
+Content Approval: Brand receives 48-hour review window before each post.
+Exclusivity: Creator will not partner with directly competing brands during the term.
+Payment Schedule: Monthly on the 1st of each month.
+Termination: Either party may terminate with 30 days written notice.
+Content Ownership: Creator retains ownership. Brand receives perpetual, non-exclusive license to use content.
+FTC Compliance: Creator will disclose the partnership on all posts.
+
+Creator: [CREATOR]                    Date: [DATE]
+Brand:   [BRAND]                      Date: ___________`
+};
+
+function generateContract() {
+  const type         = document.getElementById('contract-type').value;
+  const deliverables = document.getElementById('p-deliverables')?.value.trim() || '[Deliverables]';
+  const price        = document.getElementById('p-price')?.value.trim() || '[Price]';
+  const timeline     = document.getElementById('p-timeline')?.value.trim() || '[Timeline]';
+
+  // Get brand name from selected deal
+  const dealSel  = document.getElementById('p-deal-id');
+  const dealId   = dealSel?.value || '';
+  const deal     = deals.find(d => d.id === dealId);
+  const brand    = deal?.brand_name || '[Brand Name]';
+
+  // Get creator name — cached from profile load, fallback to profile input, then placeholder
+  const creatorName = creatorDisplayName
+    || document.getElementById('p-name')?.value.trim()
+    || '[Creator Name]';
+
+  const template = CONTRACT_TEMPLATES[type] || CONTRACT_TEMPLATES.paid_post;
+  const priceStr = price ? '$' + Number(price).toLocaleString() : '[Price]';
+  const filled = template
+    .replace(/\[CREATOR\]/g, creatorName)
+    .replace(/\[BRAND\]/g, brand)
+    .replace(/\[DELIVERABLES\]/g, deliverables)
+    .replace(/\[PRICE\]/g, priceStr)
+    .replace(/\[TIMELINE\]/g, timeline)
+    .replace(/\[DATE\]/g, new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }));
+
+  document.getElementById('contract-output').value = filled;
+  document.getElementById('contract-output-wrap').classList.remove('hidden');
+}
+
+function copyContract() {
+  const text = document.getElementById('contract-output').value;
+  navigator.clipboard.writeText(text);
+}
+
+function copyKitUrl(btn) {
+  const url = document.getElementById('kit-url-display').value;
+  if (!url || url === 'Loading...') return;
+  navigator.clipboard.writeText(url).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px">check</span> Copied!';
+    setTimeout(() => { btn.innerHTML = original; }, 2000);
+  });
+}
+
+async function downloadContractPdf() {
+  const text      = document.getElementById('contract-output').value;
+  const dealSel   = document.getElementById('p-deal-id');
+  const dealId    = dealSel?.value || '';
+  const deal      = deals.find(d => d.id === dealId);
+  const brandName = deal?.brand_name || 'Brand';
+
+  if (!text) return alert('Generate a contract first.');
+  setLoading('btn-contract-pdf', true, 'Generating PDF...');
+  try {
+    const res = await fetch(API + '/contract/pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ACCESS_TOKEN}` },
+      body: JSON.stringify({ contract_text: text, brand_name: brandName }),
+    });
+    if (!res.ok) {
+      // Fallback: copy to clipboard and notify
+      navigator.clipboard.writeText(text);
+      alert('PDF not available yet — contract text copied to clipboard.');
+      return;
+    }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = `contract-${brandName.toLowerCase().replace(/\s+/g,'-')}.pdf`; a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) {
+    navigator.clipboard.writeText(text);
+    alert('PDF not available yet — contract text copied to clipboard.');
+  } finally {
+    setLoading('btn-contract-pdf', false, '<span class="material-symbols-outlined" style="font-size:15px">download</span> Download Contract PDF');
+  }
+}
+</script>
+</body>
+</html>
