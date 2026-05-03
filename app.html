@@ -453,7 +453,7 @@
     <div id="ai-bar-wrap" class="ai-bar-wrap">
       <div class="ai-bar-label">
         <span>AI emails</span>
-        <span id="ai-bar-count">0 / 5</span>
+        <span id="ai-bar-count">0 / 4</span>
       </div>
       <div class="ai-bar-track"><div id="ai-bar-fill" class="ai-bar-fill" style="width:0%"></div></div>
     </div>
@@ -717,8 +717,8 @@
       </div>
     </div>
 
-    <!-- Contract Generator — always visible -->
-    <div id="contract-section" style="margin-top:20px">
+    <!-- Contract Generator — hidden until proposal generated -->
+    <div id="contract-section" class="hidden" style="margin-top:20px">
       <div class="vs-panel">
         <div class="vs-panel-head">Contract Generator</div>
         <div class="vs-panel-body">
@@ -1796,9 +1796,10 @@ async function createDeal() {
   const follow_up_date = document.getElementById('nd-followup').value || null;
   if (!brand_name) return alert('Brand name is required');
 
-  // Deal limit gate
+  // Deal limit gate — only count non-won, non-paid deals
   const cfg = PLAN_CONFIG[userPlan] || PLAN_CONFIG.trial;
-  if (cfg.dealLimit !== Infinity && deals.length >= cfg.dealLimit) {
+  const activeDeals = deals.filter(d => !['won','paid'].includes(d.status));
+  if (cfg.dealLimit !== Infinity && activeDeals.length >= cfg.dealLimit) {
     closeNewDealModal();
     openUpgradeModal(`You've reached the ${cfg.dealLimit}-deal limit on the Free plan. Upgrade to Pro for unlimited deals.`);
     return;
@@ -1846,10 +1847,11 @@ async function sendOutreach() {
   const niche = document.getElementById('o-niche').value.trim();
   const pitch = document.getElementById('o-pitch').value.trim();
   const to_email = document.getElementById('o-to-email').value.trim();
+  const email_body = document.getElementById('o-output').value.trim();
   if (!brand || !niche || !pitch || !to_email) return alert('Fill in all fields including email');
   setLoading('btn-send-outreach', true, '<span class="material-symbols-outlined" style="font-size:16px">send</span> Sending...');
   try {
-    await api('POST', '/outreach/send', { brand, niche, pitch, to_email });
+    await api('POST', '/outreach/send', { brand, niche, pitch, to_email, email_body });
     document.getElementById('o-success').classList.remove('hidden');
     trackAiUse();
   } catch(e) { alert(e.message); }
@@ -2372,6 +2374,10 @@ function openInvoiceFromSelect() {
 }
 
 async function openInvoiceModal(dealId) {
+  if (!['pro','founding','studio','scale','trial'].includes(userPlan)) {
+    openUpgradeModal('Invoice generation is a Pro feature. Upgrade to create professional invoices.');
+    return;
+  }
   const modal = document.getElementById('invoice-modal');
   const loading = document.getElementById('invoice-loading');
   const content = document.getElementById('invoice-content');
@@ -2458,9 +2464,10 @@ async function prefillOutreachDefaults() {
   } catch(e) { console.warn('prefillOutreachDefaults:', e); }
 }
 
-function prefillProposalDeals() {
+async function prefillProposalDeals() {
   const sel = document.getElementById('p-deal-id');
   if (!sel) return;
+  if (!deals.length) await loadDeals();
   const current = sel.value;
   sel.innerHTML = '<option value="">Select a deal...</option>' +
     deals.map(d => `<option value="${esc(d.id)}">${esc(d.brand_name)}${d.amount ? ' — $'+Number(d.amount).toLocaleString() : ''}</option>`).join('');
@@ -2559,12 +2566,13 @@ async function saveProfile() {
 function updateKitUrlPreview() {
   const username = document.getElementById('p-username')?.value.trim();
   const kitUrl = username
-    ? `${location.origin}/kit.html?u=${encodeURIComponent(username)}`
-    : (USER_ID ? `${location.origin}/kit.html?id=${USER_ID}` : '');
+    ? `https://getvesca.com/kit.html?u=${encodeURIComponent(username)}`
+    : (USER_ID ? `https://getvesca.com/kit.html?id=${USER_ID}` : '');
   const urlInput = document.getElementById('kit-url-display');
   const previewLink = document.getElementById('kit-preview-link');
-  if (urlInput && kitUrl) urlInput.value = kitUrl;
+  if (urlInput) urlInput.value = kitUrl || 'Save your username to get your link';
   if (previewLink && kitUrl) previewLink.href = kitUrl;
+  if (previewLink && !kitUrl) previewLink.removeAttribute('href');
 }
 
 async function changePassword() {
@@ -2578,6 +2586,11 @@ async function changePassword() {
 let rtProfile = null;
 
 async function loadRateTool() {
+  if (['free','trial_expired'].includes(userPlan)) {
+    openUpgradeModal('The Rate Tool is a Pro feature. Upgrade to see market rates for your niche.');
+    navigate('deals');
+    return;
+  }
   if (!rtProfile) {
     try { rtProfile = await api('GET', '/profile'); } catch(e) { rtProfile = {}; }
   }
@@ -2600,8 +2613,8 @@ function updateRateTool() {
   const low  = parts[0]?.trim() || '—';
   const high = parts[1]?.trim() || parts[0]?.trim() || '—';
   // Mid = average of low and high numeric values
-  const lowNum  = parseFloat(low.replace(/[^0-9.]/g,'')) || 0;
-  const highNum = parseFloat(high.replace(/[^0-9.]/g,'')) || lowNum;
+  const lowNum  = parseFloat(low.replace(/,/g,'').replace(/[^0-9.]/g,'')) || 0;
+  const highNum = parseFloat(high.replace(/,/g,'').replace(/[^0-9.]/g,'')) || lowNum;
   const mid = raw.endsWith('+') ? raw : '$' + Math.round((lowNum + highNum) / 2).toLocaleString();
 
   const platformLabels = { story:'Instagram Story', feed:'Instagram Feed Post', youtube:'YouTube Integration', tiktok:'TikTok Video' };
