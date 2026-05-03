@@ -1,0 +1,6 @@
+{
+  "name": "vesca-frontend-staging",
+  "compatibility_date": "2026-05-03",
+  "assets": { "directory": "." },
+  "compatibility_flags": ["nodejs_compat"]
+}
