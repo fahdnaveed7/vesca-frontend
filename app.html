@@ -922,6 +922,17 @@
             </select>
           </div>
           <div>
+            <label class="field-label">Currency</label>
+            <select id="p-currency">
+              <option value="USD">USD — US Dollar ($)</option>
+              <option value="INR">INR — Indian Rupee (₹)</option>
+              <option value="GBP">GBP — British Pound (£)</option>
+              <option value="EUR">EUR — Euro (€)</option>
+              <option value="CAD">CAD — Canadian Dollar (CA$)</option>
+              <option value="AUD">AUD — Australian Dollar (A$)</option>
+            </select>
+          </div>
+          <div>
             <label class="field-label">Platforms</label>
             <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
               <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);cursor:pointer"><input type="checkbox" value="YouTube" class="platform-cb"/> YouTube</label>
@@ -969,7 +980,7 @@
           <div>
             <label class="field-label">Instagram Story</label>
             <div style="position:relative">
-              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);pointer-events:none">$</span>
+              <span class="rate-prefix" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);pointer-events:none">$</span>
               <input id="p-rate-story" type="number" placeholder="0" style="padding-left:22px"/>
             </div>
             <p id="bench-story" style="font-size:11px;color:var(--t4);margin-top:4px">Market range: loading...</p>
@@ -977,7 +988,7 @@
           <div>
             <label class="field-label">Instagram Feed Post</label>
             <div style="position:relative">
-              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);pointer-events:none">$</span>
+              <span class="rate-prefix" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);pointer-events:none">$</span>
               <input id="p-rate-feed" type="number" placeholder="0" style="padding-left:22px"/>
             </div>
             <p id="bench-feed" style="font-size:11px;color:var(--t4);margin-top:4px">Market range: loading...</p>
@@ -985,7 +996,7 @@
           <div>
             <label class="field-label">YouTube Integration</label>
             <div style="position:relative">
-              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);pointer-events:none">$</span>
+              <span class="rate-prefix" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);pointer-events:none">$</span>
               <input id="p-rate-youtube" type="number" placeholder="0" style="padding-left:22px"/>
             </div>
             <p id="bench-youtube" style="font-size:11px;color:var(--t4);margin-top:4px">Market range: loading...</p>
@@ -993,7 +1004,7 @@
           <div>
             <label class="field-label">TikTok Video</label>
             <div style="position:relative">
-              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);pointer-events:none">$</span>
+              <span class="rate-prefix" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);pointer-events:none">$</span>
               <input id="p-rate-tiktok" type="number" placeholder="0" style="padding-left:22px"/>
             </div>
             <p id="bench-tiktok" style="font-size:11px;color:var(--t4);margin-top:4px">Market range: loading...</p>
@@ -1536,6 +1547,7 @@ const PLAN_CONFIG = {
   scale:         { label: 'Scale',         pillClass: 'plan-pill-scale',    dealLimit: Infinity, aiLimit: Infinity, color: 'oklch(0.72 0.12 145)' },
 };
 let userPlan = 'trial';
+let userCurrency = 'USD';
 
 // ── RATE BENCHMARK TABLE ─────────────────────────────────
 const RATE_BENCHMARKS = {
@@ -1548,6 +1560,26 @@ const RATE_BENCHMARKS = {
 };
 
 // ── XSS ESCAPE ────────────────────────────────────────────
+const CURRENCY_CONFIG = {
+  USD: { symbol: '$',   locale: 'en-US' },
+  INR: { symbol: '₹',  locale: 'en-IN' },
+  GBP: { symbol: '£',  locale: 'en-GB' },
+  EUR: { symbol: '€',  locale: 'de-DE' },
+  CAD: { symbol: 'CA$', locale: 'en-CA' },
+  AUD: { symbol: 'A$', locale: 'en-AU' },
+};
+
+function formatAmount(n, currency) {
+  const cur = currency || userCurrency || 'USD';
+  const cfg = CURRENCY_CONFIG[cur] || CURRENCY_CONFIG.USD;
+  if (n == null || n === '' || isNaN(n)) return cfg.symbol + '0';
+  return cfg.symbol + Number(n).toLocaleString(cfg.locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function currencySymbol() {
+  return (CURRENCY_CONFIG[userCurrency] || CURRENCY_CONFIG.USD).symbol;
+}
+
 function esc(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
 }
@@ -1775,7 +1807,7 @@ function renderKanban() {
                 ${isStale ? '<span class="stale-dot" title="No activity in 7+ days"></span>' : ''}
               </div>
               <span class="deal-status-badge" style="${badgeStyle}">${STATUS_LABELS[deal.status]}</span>
-              ${deal.amount ? `<p class="deal-card-value">$${Number(deal.amount).toLocaleString()}</p>` : ''}
+              ${deal.amount ? `<p class="deal-card-value">${formatAmount(deal.amount)}</p>` : ''}
               ${followUpStr ? `<p class="deal-card-followup${isOverdue ? ' overdue' : ''}">↻ ${followUpStr}</p>` : `<p style="font-size:10px;color:var(--t4);margin-top:2px">${deal.created_at ? new Date(deal.created_at).toLocaleDateString() : '—'}</p>`}
             </div>`;
             }).join('')}
@@ -1982,7 +2014,7 @@ async function saveDealEdit() {
   setLoading('btn-dep-save', true, 'Save Changes');
   try {
     await api('PATCH', `/deals/${editingDealId}`, { status, amount, follow_up_date, notes });
-    logDealActivity(editingDealId, 'status', `Status updated to ${status}${amount ? ` · $${Number(amount).toLocaleString()}` : ''}`);
+    logDealActivity(editingDealId, 'status', `Status updated to ${status}${amount ? ` · ${formatAmount(amount)}` : ''}`);
     closeDealEdit();
     await loadDeals();
   } catch(e) { alert(e.message); }
@@ -2171,18 +2203,17 @@ async function loadFinances() {
     const totalEarned = won.reduce((s, d) => s + (d.amount || 0), 0);
     const pendingVal  = pending.reduce((s, d) => s + (d.amount || 0), 0);
 
-    const fmt = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     document.getElementById('f-won').textContent    = won.length;
-    document.getElementById('f-total').textContent  = fmt(totalEarned);
-    document.getElementById('f-pending').textContent = fmt(pendingVal);
-    document.getElementById('f-avg').textContent    = won.length ? fmt(Math.round(totalEarned / won.length)) : '$0';
+    document.getElementById('f-total').textContent  = formatAmount(totalEarned);
+    document.getElementById('f-pending').textContent = formatAmount(pendingVal);
+    document.getElementById('f-avg').textContent    = formatAmount(won.length ? Math.round(totalEarned / won.length) : 0);
 
     // Populate invoice deal dropdown (all deals, not just those with amounts)
     const invSel = document.getElementById('inv-deal-select');
     if (invSel) {
       const prev = invSel.value;
       invSel.innerHTML = '<option value="">Select a deal...</option>' +
-        allDeals.map(d => `<option value="${esc(d.id)}">${esc(d.brand_name)}${d.amount ? ' — $' + Number(d.amount).toLocaleString() : ''}</option>`).join('');
+        allDeals.map(d => `<option value="${esc(d.id)}">${esc(d.brand_name)}${d.amount ? ' — ' + formatAmount(d.amount) : ''}</option>`).join('');
       if (prev) invSel.value = prev;
     }
 
@@ -2214,7 +2245,7 @@ async function loadFinances() {
         <td style="padding:10px 20px;text-align:center">
           <span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;border-radius:3px;padding:2px 7px;border:1px solid;${statusBadge}">${deal.status.toUpperCase()}</span>
         </td>
-        <td style="padding:10px 20px;font-size:13px;font-weight:600;color:${deal.amount ? 'oklch(0.72 0.12 145)' : 'var(--t4)'}">${deal.amount ? '$' + Number(deal.amount).toLocaleString() : '—'}</td>
+        <td style="padding:10px 20px;font-size:13px;font-weight:600;color:${deal.amount ? 'oklch(0.72 0.12 145)' : 'var(--t4)'}">${deal.amount ? formatAmount(deal.amount) : '—'}</td>
         <td style="padding:10px 20px;font-size:11px;color:var(--t3)">${new Date(deal.created_at).toLocaleDateString()}</td>
         <td style="padding:10px 20px;text-align:right">
           <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px">
@@ -2411,7 +2442,7 @@ async function openInvoiceModal(dealId) {
     document.getElementById('invoice-modal-title').textContent = inv.brand_name + ' Invoice';
     document.getElementById('inv-number').textContent = inv.invoice_number;
     document.getElementById('inv-brand').textContent = inv.brand_name;
-    document.getElementById('inv-amount').textContent = '$' + Number(inv.amount).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    document.getElementById('inv-amount').textContent = formatAmount(inv.amount);
     document.getElementById('inv-due').textContent = inv.due_date;
 
     loading.classList.add('hidden');
@@ -2487,7 +2518,7 @@ async function prefillProposalDeals() {
   if (!deals.length) await loadDeals();
   const current = sel.value;
   sel.innerHTML = '<option value="">Select a deal...</option>' +
-    deals.map(d => `<option value="${esc(d.id)}">${esc(d.brand_name)}${d.amount ? ' — $'+Number(d.amount).toLocaleString() : ''}</option>`).join('');
+    deals.map(d => `<option value="${esc(d.id)}">${esc(d.brand_name)}${d.amount ? ' — '+formatAmount(d.amount) : ''}</option>`).join('');
   if (current) sel.value = current;
 }
 
@@ -2501,8 +2532,8 @@ async function loadProfile() {
 
     document.getElementById('ps-total').textContent  = stats.total_deals;
     document.getElementById('ps-won').textContent    = stats.deals_won;
-    document.getElementById('ps-earned').textContent = '$' + (stats.total_earned || 0).toLocaleString();
-    document.getElementById('ps-avg').textContent    = stats.avg_deal_value ? '$' + stats.avg_deal_value.toLocaleString() : '$0';
+    document.getElementById('ps-earned').textContent = formatAmount(stats.total_earned || 0);
+    document.getElementById('ps-avg').textContent    = formatAmount(stats.avg_deal_value || 0);
 
     document.getElementById('p-name').value           = profile.name || '';
     if (profile.name) creatorDisplayName = profile.name;
@@ -2520,6 +2551,10 @@ async function loadProfile() {
     document.getElementById('p-rate-feed').value    = profile.rate_feed || '';
     document.getElementById('p-rate-youtube').value = profile.rate_youtube || '';
     document.getElementById('p-rate-tiktok').value  = profile.rate_tiktok || '';
+
+    userCurrency = profile.currency || 'USD';
+    document.getElementById('p-currency').value = userCurrency;
+    document.querySelectorAll('.rate-prefix').forEach(el => el.textContent = currencySymbol());
 
     document.getElementById('p-default-niche').value = profile.default_niche || '';
     document.getElementById('p-default-pitch').value = profile.default_pitch || '';
@@ -2564,7 +2599,10 @@ async function saveProfile() {
       handle_youtube: document.getElementById('p-handle-youtube').value.replace('@','').trim(),
       handle_twitter: document.getElementById('p-handle-twitter').value.replace('@','').trim(),
       username:       document.getElementById('p-username').value.trim() || null,
+      currency:       document.getElementById('p-currency').value || 'USD',
     });
+    userCurrency = document.getElementById('p-currency').value || 'USD';
+    document.querySelectorAll('.rate-prefix').forEach(el => el.textContent = currencySymbol());
     setLoading('btn-save-profile', false, 'Save Profile');
     document.getElementById('btn-save-profile').textContent = 'Saved ✓';
     setTimeout(() => document.getElementById('btn-save-profile').textContent = 'Save Profile', 2000);
@@ -2632,13 +2670,14 @@ function updateRateTool() {
   // Mid = average of low and high numeric values
   const lowNum  = parseFloat(low.replace(/,/g,'').replace(/[^0-9.]/g,'')) || 0;
   const highNum = parseFloat(high.replace(/,/g,'').replace(/[^0-9.]/g,'')) || lowNum;
-  const mid = raw.endsWith('+') ? raw : '$' + Math.round((lowNum + highNum) / 2).toLocaleString();
+  const sym = currencySymbol();
+  const mid = raw.endsWith('+') ? raw : sym + Math.round((lowNum + highNum) / 2).toLocaleString();
 
   const platformLabels = { story:'Instagram Story', feed:'Instagram Feed Post', youtube:'YouTube Integration', tiktok:'TikTok Video' };
   document.getElementById('rt-result-label').textContent = `Market Range · ${platformLabels[platform]} · ${tier} followers`;
-  document.getElementById('rt-low').textContent  = '$' + low.replace('+', '');
+  document.getElementById('rt-low').textContent  = sym + low.replace('+', '');
   document.getElementById('rt-mid').textContent  = mid;
-  document.getElementById('rt-high').textContent = '$' + high;
+  document.getElementById('rt-high').textContent = sym + high;
   result.classList.remove('hidden');
 
   updateRateComparison();
@@ -2678,8 +2717,8 @@ function updateRateComparison() {
           const lowNum  = parseFloat((parts[0]||'').replace(/[^0-9.]/g,'')) || 0;
           const highNum = parseFloat((parts[1]||parts[0]||'').replace(/[^0-9.]/g,'')) || lowNum;
           const midNum  = Math.round((lowNum + highNum) / 2);
-          const midStr  = midNum ? '$' + midNum.toLocaleString() : '—';
-          const yours   = r.profileRate ? '$' + Number(r.profileRate).toLocaleString() : '—';
+          const midStr  = midNum ? formatAmount(midNum) : '—';
+          const yours   = r.profileRate ? formatAmount(r.profileRate) : '—';
           let status = '<span style="color:var(--t4);font-size:11px">Not set</span>';
           if (r.profileRate && midNum) {
             const diff = ((r.profileRate - midNum) / midNum) * 100;
@@ -2840,7 +2879,7 @@ function generateContract() {
     || '[Creator Name]';
 
   const template = CONTRACT_TEMPLATES[type] || CONTRACT_TEMPLATES.paid_post;
-  const priceStr = price ? '$' + Number(price).toLocaleString() : '[Price]';
+  const priceStr = price ? formatAmount(price) : '[Price]';
   const filled = template
     .replace(/\[CREATOR\]/g, creatorName)
     .replace(/\[BRAND\]/g, brand)
