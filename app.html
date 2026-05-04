@@ -160,9 +160,9 @@
 
   /* ── Form controls ───────────────────────────────────── */
   textarea, input:not([type=checkbox]), select {
-    background: var(--bg-1);
-    color: var(--t1);
-    border: 1px solid var(--border);
+    background: var(--bg-1) !important;
+    color: var(--t1) !important;
+    border: 1px solid var(--border) !important;
     border-radius: 4px;
     font-size: 13px;
     padding: 8px 10px;
@@ -170,11 +170,12 @@
     font-family: inherit;
     outline: none;
     transition: border-color 0.12s, box-shadow 0.12s;
+    -webkit-text-fill-color: var(--t1) !important;
   }
-  textarea::placeholder, input::placeholder { color: var(--t3); }
+  textarea::placeholder, input::placeholder { color: var(--t3) !important; }
   textarea:focus, input:focus, select:focus {
-    box-shadow: 0 0 0 2px rgba(235,235,240,0.08);
-    border-color: var(--t2);
+    box-shadow: 0 0 0 2px rgba(235,235,240,0.08) !important;
+    border-color: var(--t2) !important;
   }
   select option { background: var(--bg-1); }
   textarea { resize: none; }
