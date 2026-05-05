@@ -396,7 +396,7 @@
   tailwind.config = { darkMode: "class", theme: { extend: {} } }
 </script>
 <script
-  src="https://browser.sentry-cdn.com/8.x.x/bundle.min.js"
+  src="https://browser.sentry-cdn.com/8/bundle.min.js"
   crossorigin="anonymous">
 </script>
 <script>
@@ -1027,7 +1027,7 @@
       <div class="vs-panel-body">
         <div id="plan-features-list" style="display:flex;flex-direction:column;gap:8px"></div>
         <div id="plan-upgrade-cta" class="hidden" style="background:oklch(0.18 0.05 70 / 0.4);border:1px solid oklch(0.35 0.1 70 / 0.35);border-radius:4px;padding:14px 16px">
-          <p id="plan-upgrade-cta-title" style="font-size:12px;font-weight:600;color:oklch(0.72 0.12 70);margin-bottom:4px">You're on a 14-day trial</p>
+          <p id="plan-upgrade-cta-title" style="font-size:12px;font-weight:600;color:oklch(0.72 0.12 70);margin-bottom:4px">You're on a 7-day trial</p>
           <p style="font-size:12px;color:var(--t2);margin-bottom:10px;line-height:1.6">Upgrade to Pro for unlimited deals, unlimited AI, rate benchmarking, and more — founding members lock in $19/mo for life.</p>
           <button onclick="openUpgradeModal()" class="vs-btn-primary" style="padding:8px 16px;font-size:12px">Choose a plan →</button>
         </div>
@@ -1632,8 +1632,8 @@ function applyPlanUI(plan) {
   // Plan features list
   const featureMap = {
     trial:         ['All Pro features — free for 7 days', 'Unlimited deals', 'Unlimited AI emails', 'Rate benchmarking', 'Proposal PDF', 'Shareable media kit'],
-    trial_expired: ['Your 14-day trial has ended', 'Upgrade to keep access', 'All work and data is saved'],
-    free:          ['3 active deals', '5 AI emails / month', 'Kanban pipeline', 'Basic finance dashboard'],
+    trial_expired: ['Your 7-day trial has ended', 'Upgrade to keep access', 'All work and data is saved'],
+    free:          ['3 active deals', '4 AI emails / month', 'Kanban pipeline', 'Basic finance dashboard'],
     founding:      ['Unlimited deals', 'Unlimited AI emails', 'All Pro features', 'Price locked forever at $19/mo', 'Founding Member badge'],
     pro:           ['Unlimited deals', 'Unlimited AI emails', 'Rate benchmarking', 'Stale deal alerts', 'Proposal PDF', 'Shareable media kit', 'Weekly digest'],
     studio:        ['Everything in Pro', '3 team seats', 'Contract templates', 'Invoice generator', 'White-label media kit'],
@@ -1655,7 +1655,7 @@ function applyPlanUI(plan) {
   if (upgradeCta) upgradeCta.classList.toggle('hidden', !['free','trial','trial_expired'].includes(plan));
   if (ctaTitle) {
     if (plan === 'trial_expired') ctaTitle.textContent = 'Your trial has ended';
-    else if (plan === 'trial') ctaTitle.textContent = 'You\'re on a 14-day trial';
+    else if (plan === 'trial') ctaTitle.textContent = 'You\'re on a 7-day trial';
     else ctaTitle.textContent = 'You\'re on the Free plan';
   }
   if (foundingMsg) foundingMsg.classList.toggle('hidden', plan !== 'founding');
@@ -2021,8 +2021,9 @@ async function deleteDeal() {
   if (!confirm('Delete this deal? This cannot be undone.')) return;
   try {
     await api('DELETE', `/deals/${editingDealId}`);
+    closeDealEdit();
+    await loadDeals();
   } catch(e) { alert(e.message); }
-  finally { closeDealEdit(); await loadDeals(); }
 }
 
 // ── DEAL ACTIVITY ─────────────────────────────────────────
@@ -2473,6 +2474,8 @@ async function downloadInvoicePdf() {
         invoice_number: currentInvoice.invoice_number,
         due_date: currentInvoice.due_date,
         creator_email: creatorEmail,
+        creator_name: creatorDisplayName || creatorEmail,
+        currency: userCurrency || 'USD',
       }),
     });
 
@@ -2893,7 +2896,7 @@ function copyContract() {
 
 function copyKitUrl(btn) {
   const url = document.getElementById('kit-url-display').value;
-  if (!url || url === 'Loading...') return;
+  if (!url || url === 'Loading...' || url === 'Save your username to get your link') return;
   navigator.clipboard.writeText(url).then(() => {
     const original = btn.innerHTML;
     btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px">check</span> Copied!';
