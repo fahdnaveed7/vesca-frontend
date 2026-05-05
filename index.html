@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Vesca — Your Brand Deals Deserve Better Than Gmail</title>
+<title>Vesca — Deal Operating System for Creators</title>
 <meta name="description" content="Vesca is the deal operating system for creators. Pitch brands, track replies, send proposals, schedule calls, and get paid — all in one place. Built for creators who run their sponsorships like a business."/>
 <link rel="canonical" href="https://getvesca.com/"/>
-<meta property="og:title" content="Vesca — Your Brand Deals Deserve Better Than Gmail"/>
-<meta property="og:description" content="Vesca is the deal operating system for creators. Pitch, track, propose, schedule, and get paid — all in one place."/>
+<meta property="og:title" content="Vesca — Deal Operating System for Creators"/>
+<meta property="og:description" content="Pitch. Track. Propose. Invoice. Everything between a brand deal and a paid invoice — one place."/>
 <meta property="og:url" content="https://getvesca.com"/>
 <meta property="og:type" content="website"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="Vesca — Your Brand Deals Deserve Better Than Gmail"/>
-<meta name="twitter:description" content="The deal operating system for creators. Pitch, track, propose, schedule, and get paid — all in one place."/>
+<meta name="twitter:title" content="Vesca — Deal Operating System for Creators"/>
+<meta name="twitter:description" content="The deal OS for creators. Pitch, track, propose, schedule, and get paid — one place."/>
 <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
@@ -26,15 +26,15 @@
   --t2:      #888888;
   --t3:      #444444;
   --t4:      #222222;
+  --amber:   oklch(0.72 0.12 70);
+  --amber-d: oklch(0.14 0.04 70 / 0.5);
+  --amber-b: oklch(0.35 0.1 70 / 0.3);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-family: 'Geist', system-ui, sans-serif; background: var(--bg); color: var(--t1); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body { overflow-x: hidden; }
 a { text-decoration: none; }
-
-/* ── Shared ─────────────────────────────────────────── */
-.wrap { max-width: 1040px; margin: 0 auto; padding: 0 28px; }
 
 .btn-primary {
   display: inline-block; background: var(--t1); color: var(--bg);
@@ -48,122 +48,205 @@ a { text-decoration: none; }
   display: inline-block; background: none; color: var(--t2);
   font-size: 13px; font-weight: 500;
   box-shadow: 0 0 0 1px var(--border);
-  border: none;
-  padding: 9px 20px; border-radius: 6px; cursor: pointer;
+  border: none; padding: 9px 20px; border-radius: 6px; cursor: pointer;
   transition: box-shadow 0.15s, color 0.15s; font-family: inherit;
 }
 .btn-ghost:hover { box-shadow: 0 0 0 1px var(--t3); color: var(--t1); }
 
-.divider { height: 1px; background: var(--brd-s); }
+.section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--t3); margin-bottom: 26px;
+}
 
 @keyframes spin { to { transform: rotate(360deg); } }
-.spinner { border: 2px solid rgba(235,235,240,0.1); border-top-color: var(--t1); border-radius: 50%; width: 16px; height: 16px; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
 
-@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-.marquee-inner { animation: marquee 28s linear infinite; display: flex; gap: 52px; white-space: nowrap; }
-
-/* ── Nav ─────────────────────────────────────────────── */
+/* ── Nav ──────────────────────────────────────── */
 nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  height: 48px; background: var(--bg);
+  height: 48px; background: rgba(0,0,0,0.9);
   border-bottom: 1px solid var(--brd-s);
   display: flex; align-items: center;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
 .nav-inner {
   max-width: 1040px; margin: 0 auto; padding: 0 28px;
   width: 100%; display: flex; align-items: center; justify-content: space-between;
 }
 .nav-logo { display: flex; align-items: center; gap: 8px; }
-.nav-logomark {
-  width: 20px; height: 20px;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
+.nav-logomark { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
 .nav-logomark svg { width: 20px; height: 20px; }
 .nav-name { font-size: 15px; font-weight: 700; letter-spacing: -0.03em; color: var(--t1); }
 
-/* ── Hero ────────────────────────────────────────────── */
-.hero { padding: 120px 28px 96px; max-width: 1040px; margin: 0 auto; }
+/* ── Hero ──────────────────────────────────────── */
+.hero {
+  padding: 128px 28px 0;
+  max-width: 1040px; margin: 0 auto;
+}
 
 .hero-eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
-  background: oklch(0.14 0.04 70 / 0.5);
-  border: 1px solid oklch(0.35 0.1 70 / 0.3);
+  background: var(--amber-d);
+  border: 1px solid var(--amber-b);
   border-radius: 100px;
-  padding: 5px 12px;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
-  color: oklch(0.72 0.12 70);
-  margin-bottom: 24px;
+  padding: 4px 12px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 28px;
 }
 
 .hero h1 {
-  font-size: clamp(36px, 5.5vw, 60px); font-weight: 800; letter-spacing: -0.055em;
-  line-height: 1.0; color: var(--t1); margin-bottom: 20px;
+  font-size: clamp(48px, 7.5vw, 88px);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 1.0;
+  color: var(--t1);
+  margin-bottom: 24px;
+  max-width: 720px;
 }
-.hero h1 span { color: var(--t2); }
+.hero h1 em { color: var(--t2); font-style: normal; }
 
 .hero-sub {
-  font-size: 16px; line-height: 1.65; color: var(--t2);
-  max-width: 500px; margin-bottom: 32px;
+  font-size: 17px; line-height: 1.65; color: var(--t2);
+  max-width: 440px; margin-bottom: 36px;
 }
 
-.hero-ctas { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.hero-ctas { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.hero-meta { font-size: 11px; color: var(--t3); margin-top: 14px; }
 
-.hero-meta { margin-top: 20px; font-size: 11px; color: var(--t3); }
-.hero-meta strong { color: var(--t2); font-weight: 600; }
+/* ── Pipeline mockup ─────────────────────────── */
+.hero-preview {
+  margin-top: 64px;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  background: var(--bg-1);
+}
 
-/* ── Brands bar ─────────────────────────────────────── */
-.brands-bar {
-  border-top: 1px solid var(--brd-s); border-bottom: 1px solid var(--brd-s);
-  padding: 16px 0; overflow: hidden;
+.preview-bar {
+  height: 38px; background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 14px; gap: 8px;
 }
-.brands-label {
-  text-align: center; font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--t3); margin-bottom: 14px;
+.preview-dot {
+  width: 10px; height: 10px; border-radius: 50%;
 }
-.brand-name { color: var(--t3); font-weight: 700; font-size: 14px; letter-spacing: 0.02em; }
+.preview-title {
+  margin-left: 8px; font-size: 11px; font-weight: 500;
+  color: var(--t3); letter-spacing: 0.01em;
+}
 
-/* ── Features ─────────────────────────────────────── */
-.features { padding: 88px 28px; max-width: 1040px; margin: 0 auto; }
-.section-label {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--t3); margin-bottom: 26px;
+.pipeline-board {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1px; background: var(--border);
 }
+.pipeline-col {
+  background: var(--bg-1); padding: 16px 14px;
+}
+.col-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--t3); margin-bottom: 12px;
+}
+.col-count {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 1px 7px;
+  font-size: 10px; color: var(--t3); font-weight: 600;
+}
+.deal-card {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 5px; padding: 11px 12px; margin-bottom: 7px;
+}
+.deal-card:last-child { margin-bottom: 0; }
+.deal-brand { font-size: 12px; font-weight: 600; color: var(--t1); margin-bottom: 5px; }
+.deal-val {
+  font-size: 16px; font-weight: 800; letter-spacing: -0.03em;
+  color: var(--amber);
+}
+.deal-meta { font-size: 10px; color: var(--t3); margin-top: 5px; }
+.deal-tag {
+  display: inline-block; font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  border-radius: 2px; padding: 2px 6px; margin-top: 7px;
+}
+.tag-outreach { background: oklch(0.14 0.04 250/0.5); border: 1px solid oklch(0.35 0.1 250/0.3); color: oklch(0.72 0.1 250); }
+.tag-reply    { background: oklch(0.14 0.04 70/0.5);  border: 1px solid oklch(0.35 0.1 70/0.3);  color: oklch(0.72 0.12 70); }
+.tag-sent     { background: oklch(0.14 0.04 145/0.5); border: 1px solid oklch(0.35 0.1 145/0.3); color: oklch(0.72 0.12 145); }
+.tag-closed   { background: oklch(0.14 0.04 145/0.7); border: 1px solid oklch(0.35 0.1 145/0.5); color: oklch(0.82 0.12 145); }
+.deal-card-dim { opacity: 0.45; }
+
+@media (max-width: 700px) {
+  .pipeline-board { grid-template-columns: repeat(2, 1fr); }
+  .pipeline-col:nth-child(3),
+  .pipeline-col:nth-child(4) { display: none; }
+}
+@media (max-width: 480px) {
+  .pipeline-board { grid-template-columns: 1fr; }
+  .pipeline-col:nth-child(2) { display: none; }
+}
+
+/* ── Statement bar ───────────────────────────── */
+.statement-bar {
+  border-top: 1px solid var(--brd-s);
+  border-bottom: 1px solid var(--brd-s);
+  padding: 40px 28px;
+}
+.statement-bar-inner {
+  max-width: 1040px; margin: 0 auto;
+}
+.statement-bar p {
+  font-size: clamp(18px, 2.5vw, 26px);
+  font-weight: 700; letter-spacing: -0.03em;
+  line-height: 1.3; color: var(--t2);
+  max-width: 700px;
+}
+.statement-bar p strong { color: var(--t1); }
+
+/* ── Features ────────────────────────────────── */
+.features { padding: 80px 28px; max-width: 1040px; margin: 0 auto; }
 .feat-list { display: flex; flex-direction: column; }
-.feat-item { display: grid; grid-template-columns: 180px 1fr; gap: 28px; padding: 20px 0; border-top: 1px solid var(--brd-s); }
+.feat-item {
+  display: grid; grid-template-columns: 200px 1fr;
+  gap: 28px; padding: 20px 0;
+  border-top: 1px solid var(--brd-s);
+}
 .feat-item:last-child { border-bottom: 1px solid var(--brd-s); }
-.feat-item-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--t3); padding-top: 2px; }
+.feat-item-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--t3); padding-top: 2px;
+}
 .feat-item-label-badge {
   display: inline-block; font-size: 8px; font-weight: 700; letter-spacing: 0.06em;
   text-transform: uppercase; padding: 2px 6px; border-radius: 2px; margin-top: 6px;
-  background: oklch(0.14 0.04 70 / 0.5); border: 1px solid oklch(0.35 0.1 70 / 0.3);
-  color: oklch(0.72 0.12 70);
+  background: var(--amber-d); border: 1px solid var(--amber-b);
+  color: var(--amber);
 }
 .feat-item-body { font-size: 14px; line-height: 1.65; color: var(--t2); }
 .feat-item-body strong { color: var(--t1); font-weight: 600; display: block; margin-bottom: 4px; }
+
 @media (max-width: 600px) {
   .feat-item { grid-template-columns: 1fr; gap: 6px; }
 }
 
-/* ── Video section ──────────────────────────────── */
-.video-section { padding: 0 28px 64px; max-width: 1040px; margin: 0 auto; }
+/* ── Video ───────────────────────────────────── */
+.video-section { padding: 0 28px 80px; max-width: 1040px; margin: 0 auto; }
 .video-wrap {
   position: relative; width: 100%; aspect-ratio: 16 / 9;
-  background: var(--bg-1); border: 1px solid var(--brd-s);
+  background: var(--bg-1); border: 1px solid var(--border);
   border-radius: 6px; overflow: hidden;
 }
-.video-wrap iframe {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  border: none;
-}
-.video-caption {
-  margin-top: 14px; font-size: 12px; color: var(--t3); text-align: center;
-}
+.video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+.video-caption { margin-top: 14px; font-size: 12px; color: var(--t3); text-align: center; }
 
-/* ── How it works ────────────────────────────────── */
-.how { padding: 0 28px 64px; max-width: 1040px; margin: 0 auto; }
-.how-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-.how-item { padding: 24px; border-right: 1px solid var(--brd-s); }
-.how-item:last-child { border-right: none; }
+/* ── How it works ────────────────────────────── */
+.how { padding: 0 28px 80px; max-width: 1040px; margin: 0 auto; }
+.how-list {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+  background: var(--border); gap: 1px;
+}
+.how-item { background: var(--bg-1); padding: 24px; }
 .how-num {
   font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--t3);
   margin-bottom: 12px; font-variant-numeric: tabular-nums;
@@ -171,102 +254,40 @@ nav {
 .how-title { font-size: 13px; font-weight: 600; color: var(--t1); margin-bottom: 6px; }
 .how-desc { font-size: 12px; color: var(--t3); line-height: 1.6; }
 
-/* ── Testimonials ─────────────────────────────── */
-.testimonials { padding: 0 28px 64px; max-width: 1040px; margin: 0 auto; }
-.quote { padding: 20px 0; border-top: 1px solid var(--brd-s); }
-.quote:last-child { border-bottom: 1px solid var(--brd-s); }
-.quote-text { font-size: 14px; line-height: 1.65; color: var(--t2); margin-bottom: 10px; }
-.quote-attr { font-size: 11px; color: var(--t3); font-weight: 500; }
-
-/* ── Waitlist ─────────────────────────────────── */
-.waitlist-section { border-top: 1px solid var(--brd-s); padding: 72px 28px; }
-.waitlist-inner { max-width: 520px; }
-.waitlist-section h2 {
-  font-size: clamp(28px, 4.5vw, 42px); font-weight: 800; letter-spacing: -0.035em;
-  line-height: 1.08; margin-bottom: 14px;
+/* ── Pricing ─────────────────────────────────── */
+.pricing { padding: 80px 28px; max-width: 1040px; margin: 0 auto; }
+.pricing-headline {
+  font-size: clamp(26px, 4vw, 38px); font-weight: 800;
+  letter-spacing: -0.035em; line-height: 1.1;
+  margin-top: 8px; margin-bottom: 32px;
 }
-.waitlist-section p { font-size: 15px; color: var(--t2); margin-bottom: 28px; line-height: 1.6; }
-.wl-form { display: flex; gap: 8px; flex-wrap: wrap; }
-.wl-input {
-  flex: 1; min-width: 210px; background: var(--bg-1); border: 1px solid var(--border);
-  color: var(--t1); padding: 10px 14px; border-radius: 4px; font-size: 14px;
-  outline: none; font-family: inherit; transition: border-color 0.15s;
-}
-.wl-input::placeholder { color: var(--t3); }
-.wl-input:focus { border-color: var(--t2); }
-.wl-btn { white-space: nowrap; }
-.wl-meta { font-size: 11px; color: var(--t3); margin-top: 12px; }
+.pricing-headline em { color: var(--t2); font-style: normal; }
 
-.success-box {
+.billing-toggle {
+  display: flex; align-items: center;
   background: var(--bg-1); border: 1px solid var(--border);
-  border-radius: 4px; padding: 20px 24px; margin-top: 16px;
+  border-radius: 4px; padding: 3px; width: fit-content; margin-bottom: 24px;
 }
-.success-box .success-title { font-size: 15px; font-weight: 700; color: var(--t1); margin-bottom: 4px; }
-.success-box p { font-size: 13px; color: var(--t2); margin: 0; }
-
-.already-box {
-  background: var(--bg-1); border: 1px solid var(--border);
-  border-radius: 4px; padding: 12px 16px; margin-top: 12px;
-  font-size: 13px; color: var(--t2);
+.toggle-btn {
+  font-size: 12px; font-weight: 600; padding: 7px 16px;
+  border-radius: 2px; border: none; cursor: pointer;
+  background: none; color: var(--t3); font-family: inherit;
+  transition: all 0.15s; white-space: nowrap;
 }
-
-/* ── Pricing ──────────────────────────────────── */
-.pricing { padding: 80px 28px 72px; max-width: 1040px; margin: 0 auto; }
-.pricing-headline { font-size: clamp(26px, 4vw, 38px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.1; margin-top: 8px; margin-bottom: 32px; }
-.pricing-headline span { color: var(--t2); }
-
-.trial-strip {
-  background: oklch(0.14 0.04 70 / 0.6); border: 1px solid oklch(0.35 0.1 70 / 0.4);
-  border-radius: 3px; padding: 14px 20px;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; flex-wrap: wrap; margin-bottom: 28px;
-}
-.trial-strip-left { display: flex; align-items: flex-start; gap: 12px; }
-.trial-strip-pulse {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: oklch(0.72 0.12 70); flex-shrink: 0; margin-top: 4px;
-  box-shadow: 0 0 0 0 oklch(0.72 0.12 70 / 0.4);
-  animation: pulse-ring 2s ease-out infinite;
-}
-@keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0 oklch(0.72 0.12 70 / 0.4); }
-  70%  { box-shadow: 0 0 0 7px oklch(0.72 0.12 70 / 0); }
-  100% { box-shadow: 0 0 0 0 oklch(0.72 0.12 70 / 0); }
-}
-.trial-strip-title { font-size: 13px; font-weight: 600; color: var(--t1); margin-bottom: 3px; }
-.trial-strip-sub { font-size: 12px; color: var(--t2); }
-.trial-strip-right { font-size: 13px; font-weight: 700; color: oklch(0.72 0.12 70); white-space: nowrap; }
-.trial-tag {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 11px; color: var(--t3); margin: 8px 0 4px;
-}
-.trial-dot {
-  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
-}
-.trial-dot-amber { background: oklch(0.72 0.12 70); }
-.trial-dot-blue  { background: oklch(0.72 0.1 250); }
-.founding-price-line {
-  font-size: 11px; color: var(--t3); margin-top: 4px; line-height: 1.4;
-}
+.toggle-btn.active { background: var(--bg-2); color: var(--t1); }
+.toggle-save { font-size: 10px; font-weight: 700; color: oklch(0.72 0.12 145); margin-left: 5px; }
 
 .pricing-grid {
   display: grid; grid-template-columns: repeat(4, 1fr);
   background: var(--border); border: 1px solid var(--border);
   border-radius: 8px; overflow: hidden; gap: 1px;
 }
-.plan {
-  background: var(--bg-1); padding: 24px;
-  display: flex; flex-direction: column; gap: 0;
-  position: relative;
-}
+.plan { background: var(--bg-1); padding: 24px; display: flex; flex-direction: column; position: relative; }
 .plan-highlighted { background: var(--bg-2); }
 .plan-highlighted::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: oklch(0.72 0.12 70);
-  border-radius: 3px 3px 0 0;
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--amber); border-radius: 3px 3px 0 0;
 }
-.plan-top { margin-bottom: 18px; }
 .plan-badge-row { margin-bottom: 8px; min-height: 18px; }
 .plan-badge {
   display: inline-block; font-size: 9px; font-weight: 700;
@@ -278,7 +299,9 @@ nav {
 .plan-price { display: flex; align-items: baseline; gap: 3px; margin-bottom: 6px; }
 .plan-amount { font-size: 30px; font-weight: 800; letter-spacing: -0.04em; color: var(--t1); }
 .plan-period { font-size: 12px; color: var(--t3); }
-.plan-desc { font-size: 12px; color: var(--t3); line-height: 1.5; }
+.plan-desc { font-size: 12px; color: var(--t3); line-height: 1.5; margin-top: 6px; }
+.plan-annual-note { display: none; font-size: 11px; color: oklch(0.72 0.12 145); margin-top: 2px; }
+.plan-trial-note { font-size: 11px; color: var(--t3); margin-top: 4px; }
 .plan-sep { height: 1px; background: var(--brd-s); margin: 16px 0; }
 .plan-feats { display: flex; flex-direction: column; gap: 9px; flex: 1; margin-bottom: 20px; }
 .pf { font-size: 12px; color: var(--t3); display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
@@ -292,33 +315,27 @@ nav {
 .plan-cta .btn-ghost { width: 100%; text-align: center; display: block; padding: 9px 16px; }
 
 @media (max-width: 1060px) { .pricing-grid { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 520px)  { .pricing-grid { grid-template-columns: 1fr; } .trial-strip { flex-direction: column; } }
+@media (max-width: 520px)  { .pricing-grid { grid-template-columns: 1fr; } }
 
-/* ── Billing toggle ───────────────────────── */
-.billing-toggle {
-  display: flex; align-items: center; gap: 0;
-  background: var(--bg-1); border: 1px solid var(--border);
-  border-radius: 4px; padding: 3px; width: fit-content; margin-bottom: 24px;
+/* ── Payment modal ────────────────────────────── */
+.pm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 200; display: none; align-items: center; justify-content: center; }
+.pm-overlay.open { display: flex; }
+.pm-box { background: var(--bg-1); border: 1px solid var(--border); border-radius: 6px; padding: 28px; max-width: 400px; width: 90%; }
+.pm-period-toggle { display: flex; gap: 2px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 4px; padding: 3px; margin-bottom: 14px; }
+.pm-period-btn { flex: 1; padding: 7px; border: none; border-radius: 3px; font-size: 12px; font-weight: 500; font-family: inherit; cursor: pointer; transition: all 0.12s; display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--t3); background: none; }
+.pm-period-btn.active { background: var(--bg); color: var(--t1); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.pm-save { font-size: 9px; font-weight: 700; color: oklch(0.72 0.12 145); text-transform: uppercase; }
+
+/* ── CTA section ──────────────────────────────── */
+.cta-section { border-top: 1px solid var(--brd-s); padding: 80px 28px; }
+.cta-inner { max-width: 540px; }
+.cta-section h2 {
+  font-size: clamp(28px, 4.5vw, 44px); font-weight: 800;
+  letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 16px;
 }
-.toggle-btn {
-  font-size: 12px; font-weight: 600; padding: 7px 16px;
-  border-radius: 2px; border: none; cursor: pointer;
-  background: none; color: var(--t3); font-family: inherit;
-  transition: all 0.15s; white-space: nowrap;
-}
-.toggle-btn.active { background: var(--bg-2); color: var(--t1); }
-.toggle-save { font-size: 10px; font-weight: 700; color: oklch(0.72 0.12 145); margin-left: 5px; }
-/* Payment modal */
-.pm-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.78); z-index:200; display:none; align-items:center; justify-content:center; }
-.pm-overlay.open { display:flex; }
-.pm-box { background:var(--bg-1); border:1px solid var(--border); border-radius:4px; padding:28px; max-width:400px; width:90%; }
-.pm-period-toggle { display:flex; gap:2px; background:var(--bg-2); border:1px solid var(--border); border-radius:4px; padding:3px; margin-bottom:14px; }
-.pm-period-btn { flex:1; padding:7px; border:none; border-radius:3px; font-size:12px; font-weight:500; font-family:inherit; cursor:pointer; transition:all 0.12s; display:flex; align-items:center; justify-content:center; gap:6px; color:var(--t3); background:none; }
-.pm-period-btn.active { background:var(--bg); color:var(--t1); box-shadow:0 1px 3px rgba(0,0,0,0.3); }
-.pm-save { font-size:9px; font-weight:700; color:oklch(0.72 0.12 145); text-transform:uppercase; }
-.pm-input { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:10px 12px; font-size:13px; color:var(--t1); font-family:inherit; outline:none; }
-.pm-input:focus { border-color:var(--t3); }
-.pm-input::placeholder { color:var(--t3); }
+.cta-section h2 em { color: var(--t2); font-style: normal; }
+.cta-section p { font-size: 15px; color: var(--t2); margin-bottom: 28px; line-height: 1.6; }
+.cta-meta { font-size: 11px; color: var(--t3); margin-top: 12px; }
 
 /* ── Footer ───────────────────────────────────── */
 footer {
@@ -327,15 +344,15 @@ footer {
   flex-wrap: wrap; gap: 12px;
 }
 .foot-logo { display: flex; align-items: center; gap: 7px; }
-.foot-logomark {
-  width: 18px; height: 18px;
-  display: flex; align-items: center; justify-content: center;
-}
+.foot-logomark { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
 .foot-logomark svg { width: 18px; height: 18px; }
 .foot-name { font-size: 14px; font-weight: 700; letter-spacing: -0.02em; }
 .foot-copy { font-size: 12px; color: var(--t3); }
 .foot-link { font-size: 12px; color: var(--t3); }
 .foot-link:hover { color: var(--t2); }
+
+/* ── Divider ──────────────────────────────────── */
+.divider { height: 1px; background: var(--brd-s); }
 </style>
 </head>
 <body>
@@ -349,48 +366,107 @@ footer {
       </div>
       <span class="nav-name">vesca</span>
     </div>
-    <a href="#waitlist" class="btn-primary">Join the Waitlist</a>
+    <a href="auth.html" class="btn-primary">Start for free →</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-eyebrow">First 100 founders: $19/mo locked forever · no card required</div>
-  <h1>Your brand deals deserve<br/><span>better than Gmail.</span></h1>
-  <p class="hero-sub">Pitch. Track. Propose. Invoice. Everything between a brand deal and a paid invoice — one place.</p>
+  <div class="hero-eyebrow">Deal Operating System</div>
+  <h1>Stop managing<br/>brand deals<br/><em>in Gmail.</em></h1>
+  <p class="hero-sub">Pitch, track, propose, and get paid — one place. Built for creators who treat sponsorships like a business.</p>
   <div class="hero-ctas">
-    <a href="auth.html" class="btn-primary">Start free — no credit card</a>
-    <a href="app.html" class="btn-ghost">See how it works</a>
+    <a href="auth.html" class="btn-primary">Start free — no card required</a>
+    <a href="#how-it-works" class="btn-ghost">See how it works</a>
   </div>
-  <div class="hero-meta"><strong id="hero-count">340+</strong> creators already in &nbsp;·&nbsp; Free forever, no card needed</div>
+  <div class="hero-meta">Free plan available. No credit card. No catch.</div>
+
+  <!-- Pipeline preview mockup -->
+  <div class="hero-preview">
+    <div class="preview-bar">
+      <div class="preview-dot" style="background:#ff5f57"></div>
+      <div class="preview-dot" style="background:#febc2e"></div>
+      <div class="preview-dot" style="background:#28c840"></div>
+      <span class="preview-title">vesca / pipeline</span>
+    </div>
+    <div class="pipeline-board">
+
+      <!-- Outreach -->
+      <div class="pipeline-col">
+        <div class="col-head">Outreach <span class="col-count">3</span></div>
+        <div class="deal-card">
+          <div class="deal-brand">AG1 / Athletic Greens</div>
+          <div class="deal-val">$2,400</div>
+          <div class="deal-meta">YouTube · 60s integration</div>
+          <div class="deal-tag tag-outreach">Pitch sent</div>
+        </div>
+        <div class="deal-card">
+          <div class="deal-brand">NordVPN</div>
+          <div class="deal-val">$1,800</div>
+          <div class="deal-meta">TikTok · 45s dedicated</div>
+          <div class="deal-tag tag-outreach">Draft ready</div>
+        </div>
+        <div class="deal-card deal-card-dim">
+          <div class="deal-brand">Notion</div>
+          <div class="deal-val">$900</div>
+          <div class="deal-meta">Instagram · story series</div>
+          <div class="deal-tag tag-outreach">Researching</div>
+        </div>
+      </div>
+
+      <!-- In Talks -->
+      <div class="pipeline-col">
+        <div class="col-head">In Talks <span class="col-count">2</span></div>
+        <div class="deal-card">
+          <div class="deal-brand">Squarespace</div>
+          <div class="deal-val">$3,200</div>
+          <div class="deal-meta">YouTube · 90s mid-roll</div>
+          <div class="deal-tag tag-reply">Replied · follow up</div>
+        </div>
+        <div class="deal-card">
+          <div class="deal-brand">Magic Mind</div>
+          <div class="deal-val">$1,200</div>
+          <div class="deal-meta">YouTube · 30s end-card</div>
+          <div class="deal-tag tag-reply">Call scheduled</div>
+        </div>
+      </div>
+
+      <!-- Proposal Sent -->
+      <div class="pipeline-col">
+        <div class="col-head">Proposal <span class="col-count">1</span></div>
+        <div class="deal-card">
+          <div class="deal-brand">Beehiiv</div>
+          <div class="deal-val">$4,500</div>
+          <div class="deal-meta">Podcast · 60s pre-roll × 3</div>
+          <div class="deal-tag tag-sent">PDF sent · awaiting</div>
+        </div>
+      </div>
+
+      <!-- Closed -->
+      <div class="pipeline-col">
+        <div class="col-head">Closed <span class="col-count">4</span></div>
+        <div class="deal-card">
+          <div class="deal-brand">Kajabi</div>
+          <div class="deal-val">$2,800</div>
+          <div class="deal-meta">YouTube · integration</div>
+          <div class="deal-tag tag-closed">Paid ✓</div>
+        </div>
+        <div class="deal-card deal-card-dim">
+          <div class="deal-brand">Epidemic Sound</div>
+          <div class="deal-val">$1,600</div>
+          <div class="deal-meta">TikTok × 4 posts</div>
+          <div class="deal-tag tag-closed">Invoiced</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </section>
 
-<!-- BRANDS BAR -->
-<div class="brands-bar">
-  <div class="brands-label">Brands creators are pitching with Vesca</div>
-  <div style="overflow:hidden">
-    <div class="marquee-inner">
-      <span class="brand-name">AG1</span>
-      <span class="brand-name">Notion</span>
-      <span class="brand-name">Magic Mind</span>
-      <span class="brand-name">Ritual</span>
-      <span class="brand-name">Nord VPN</span>
-      <span class="brand-name">Squarespace</span>
-      <span class="brand-name">Beehiiv</span>
-      <span class="brand-name">Kajabi</span>
-      <span class="brand-name">Epidemic Sound</span>
-      <span class="brand-name">Surfshark</span>
-      <span class="brand-name">AG1</span>
-      <span class="brand-name">Notion</span>
-      <span class="brand-name">Magic Mind</span>
-      <span class="brand-name">Ritual</span>
-      <span class="brand-name">Nord VPN</span>
-      <span class="brand-name">Squarespace</span>
-      <span class="brand-name">Beehiiv</span>
-      <span class="brand-name">Kajabi</span>
-      <span class="brand-name">Epidemic Sound</span>
-      <span class="brand-name">Surfshark</span>
-    </div>
+<!-- STATEMENT -->
+<div class="statement-bar" style="margin-top:0">
+  <div class="statement-bar-inner">
+    <p>Most creators leave money on the table every year. <strong>Not from bad deals — from no system.</strong> Vesca gives you the system.</p>
   </div>
 </div>
 
@@ -421,12 +497,12 @@ footer {
       <div class="feat-item-label">Deal Pipeline</div>
       <div class="feat-item-body">
         <strong>Every deal. One board.</strong>
-        First contact to final payment — on one board. No spreadsheet, no sticky notes, nothing missed.
+        First contact to final payment — tracked in one place. No spreadsheet, no sticky notes, nothing missed.
       </div>
     </div>
 
     <div class="feat-item">
-      <div class="feat-item-label">Deal Activity<br/>Timeline</div>
+      <div class="feat-item-label">Deal Activity Timeline</div>
       <div class="feat-item-body">
         <strong>The full record, without the effort.</strong>
         Every email, reply, and status change auto-logged. Pick up a dead deal three months later like you never stopped.
@@ -459,7 +535,7 @@ footer {
       <div class="feat-item-label">Proposal Builder</div>
       <div class="feat-item-body">
         <strong>A polished proposal in 60 seconds.</strong>
-        Deal details in, branded PDF out. Deliverables, rates, timelines — formatted right the first time. No Canva.
+        Deal details in, branded PDF out. Deliverables, rates, timelines — formatted right the first time.
       </div>
     </div>
 
@@ -481,7 +557,7 @@ footer {
       </div>
       <div class="feat-item-body">
         <strong>Your profile, live and always current.</strong>
-        A public link that updates as you grow. Send it to any brand, any time — no PDF versioning, no redesigns. Studio adds your own branding.
+        A public link that updates as you grow. Send it to any brand, any time — no PDF versioning, no redesigns.
       </div>
     </div>
 
@@ -504,7 +580,7 @@ footer {
       </div>
       <div class="feat-item-body">
         <strong>Know what to post before anyone else does.</strong>
-        An agent that watches your niche around the clock and tells you exactly what to create before the trend peaks — not after.
+        An agent that watches your niche around the clock and tells you exactly what to create before the trend peaks.
       </div>
     </div>
 
@@ -525,20 +601,20 @@ footer {
       title="Vesca for Creators">
     </iframe>
   </div>
-  <p class="video-caption">See how creators go from cold pitch to paid deal in Vesca.</p>
+  <p class="video-caption">From cold pitch to paid deal — see how creators use Vesca.</p>
 </section>
 <script src="https://player.vimeo.com/api/player.js"></script>
 
-<div class="divider" style="margin: 64px 28px 0"></div>
+<div class="divider" style="margin: 0 28px"></div>
 
 <!-- HOW IT WORKS -->
-<section class="how" style="padding-top:64px">
+<section class="how" id="how-it-works" style="padding-top:64px">
   <div class="section-label">How it works</div>
   <div class="how-list">
     <div class="how-item">
       <div class="how-num">01</div>
       <div class="how-title">Know your rate first</div>
-      <div class="how-desc">Before you pitch anyone, the Rate Tool tells you what to charge based on your platform, follower count, and niche. Go in knowing your floor.</div>
+      <div class="how-desc">The Rate Tool tells you what to charge based on your platform, follower count, and niche. Go in knowing your floor.</div>
     </div>
     <div class="how-item">
       <div class="how-num">02</div>
@@ -568,50 +644,18 @@ footer {
   </div>
 </section>
 
-<div class="divider" style="margin:0 28px"></div>
-
-<!-- TESTIMONIALS -->
-<section class="testimonials" style="padding-top:64px">
-  <div class="section-label">What creators say</div>
-  <div class="quote">
-    <div class="quote-text">"The proposal builder alone saves me three hours a week, and brands respond to me completely differently now."</div>
-    <div class="quote-attr">Alex Rivera — Tech Creator, 180K subscribers</div>
-  </div>
-  <div class="quote">
-    <div class="quote-text">"First week, I closed an $8,000 deal. The AI wrote the pitch. I read it over. It was genuinely better than what I would have written."</div>
-    <div class="quote-attr">Sarah Jenkins — Lifestyle Creator, 92K followers</div>
-  </div>
-  <div class="quote">
-    <div class="quote-text">"I stopped losing deals I'd already half-won."</div>
-    <div class="quote-attr">Marcus Thorne — Finance Creator, 310K followers</div>
-  </div>
-</section>
+<div class="divider" style="margin: 0 28px"></div>
 
 <!-- PRICING -->
-<div class="divider" style="margin:0 28px"></div>
-<section class="pricing">
+<section class="pricing" id="pricing">
   <div class="section-label">Pricing</div>
-  <h2 class="pricing-headline">Your manager.<br/><span>Without the 20% cut.</span></h2>
+  <h2 class="pricing-headline">Your deal manager.<br/><em>Without the 20% cut.</em></h2>
 
-  <!-- Trial urgency strip -->
-  <div class="trial-strip">
-    <div class="trial-strip-left">
-      <span class="trial-strip-pulse"></span>
-      <div>
-        <div class="trial-strip-title">First 100 signups get a <strong>14-day free trial.</strong> After that, 7 days.</div>
-        <div class="trial-strip-sub">No credit card required for either. Pay only when your trial ends.</div>
-      </div>
-    </div>
-    <div class="trial-strip-right"><span id="founding-spots-left">—</span> founding spots left</div>
-  </div>
-
-  <!-- Billing toggle -->
   <div class="billing-toggle">
     <button id="toggle-monthly" class="toggle-btn active" onclick="setBilling('monthly')">Monthly</button>
     <button id="toggle-annual" class="toggle-btn" onclick="setBilling('annual')">Annual <span class="toggle-save">Save 17%</span></button>
   </div>
 
-  <!-- 4-plan grid -->
   <div class="pricing-grid">
 
     <!-- FREE -->
@@ -623,7 +667,8 @@ footer {
           <span class="plan-amount">$0</span>
           <span class="plan-period">/mo</span>
         </div>
-        <div class="plan-desc" style="margin-top:10px">Start landing deals today. No card, no catch.</div>
+        <div class="plan-trial-note">Free forever. No card, no catch.</div>
+        <div class="plan-desc" style="margin-top:10px">Start landing deals today.</div>
       </div>
       <div class="plan-sep"></div>
       <div class="plan-feats">
@@ -650,12 +695,8 @@ footer {
           <span class="plan-amount" data-monthly="29" data-annual="24">$29</span>
           <span class="plan-period">/mo</span>
         </div>
-        <div class="plan-annual-note" style="display:none;font-size:11px;color:oklch(0.72 0.12 145);margin-top:2px;margin-bottom:2px">Billed $288/yr · 2 months free</div>
-        <div class="trial-tag">
-          <span class="trial-dot trial-dot-amber"></span>
-          <span id="pro-trial-label">14-day free trial · no card required</span>
-        </div>
-        <div class="founding-price-line">First 100 founders: <strong style="color:oklch(0.72 0.12 70)">$19/mo locked forever</strong></div>
+        <div class="plan-annual-note" id="pro-annual-note">Billed $288/yr · 2 months free</div>
+        <div class="plan-trial-note">7-day free trial · no card required</div>
         <div class="plan-desc" style="margin-top:10px">For creators actively closing deals. From first pitch to paid invoice — one place.</div>
       </div>
       <div class="plan-sep"></div>
@@ -683,17 +724,14 @@ footer {
           <span class="plan-amount" data-monthly="79" data-annual="65">$79</span>
           <span class="plan-period">/mo</span>
         </div>
-        <div class="plan-annual-note" style="display:none;font-size:11px;color:oklch(0.72 0.12 145);margin-top:2px;margin-bottom:2px">Billed $780/yr · 2 months free</div>
-        <div class="trial-tag">
-          <span class="trial-dot trial-dot-blue"></span>
-          <span id="studio-trial-label">7-day free trial · no card required</span>
-        </div>
-        <div class="plan-desc" style="margin-top:10px">Running this like a business. White-label media kit, contracts, and team seats included.</div>
+        <div class="plan-annual-note" id="studio-annual-note">Billed $780/yr · 2 months free</div>
+        <div class="plan-trial-note">7-day free trial · no card required</div>
+        <div class="plan-desc" style="margin-top:10px">Running this like a business. White-label, contracts, and team seats.</div>
       </div>
       <div class="plan-sep"></div>
       <div class="plan-feats">
         <div class="pf pf-on">Everything in Pro</div>
-        <div class="pf pf-on">White-label media kit (your branding, not ours)</div>
+        <div class="pf pf-on">White-label media kit (your branding)</div>
         <div class="pf pf-on">Contract templates</div>
         <div class="pf pf-on">3 team seats (manager, editor, VA)</div>
         <div class="pf pf-on">Manager access portal</div>
@@ -712,12 +750,9 @@ footer {
           <span class="plan-amount" data-monthly="199" data-annual="165">$199</span>
           <span class="plan-period">/mo</span>
         </div>
-        <div class="plan-annual-note" style="display:none;font-size:11px;color:oklch(0.72 0.12 145);margin-top:2px;margin-bottom:2px">Billed $1,980/yr · 2 months free</div>
-        <div class="trial-tag">
-          <span class="trial-dot trial-dot-blue"></span>
-          <span id="scale-trial-label">7-day free trial · no card required</span>
-        </div>
-        <div class="plan-desc" style="margin-top:10px">For agencies and high-volume operators. Unlimited seats, client billing, the full toolkit.</div>
+        <div class="plan-annual-note" id="scale-annual-note">Billed $1,980/yr · 2 months free</div>
+        <div class="plan-trial-note">7-day free trial · no card required</div>
+        <div class="plan-desc" style="margin-top:10px">For agencies and high-volume operators. Unlimited seats and the full toolkit.</div>
       </div>
       <div class="plan-sep"></div>
       <div class="plan-feats">
@@ -734,38 +769,17 @@ footer {
     </div>
 
   </div>
-  <p style="font-size:12px;color:var(--t3);text-align:center;margin-top:20px">Free plan is free forever. No credit card until your Pro trial ends. First 100 founders lock in $19/mo — forever.</p>
+  <p style="font-size:12px;color:var(--t3);text-align:center;margin-top:20px">Free plan is free forever. No credit card until your trial ends.</p>
 </section>
 
-<!-- WAITLIST -->
-<section id="waitlist" class="waitlist-section">
-  <div class="waitlist-inner">
-    <div class="section-label">Limited early access</div>
-    <h2>Stop leaving brand money<br/>on the table.</h2>
-    <p>Free forever — 3 deals, 4 AI emails, no card. Or grab a Pro trial: first 100 founders lock in $19/mo forever with 14 days free. After that, 7 days at $29/mo.</p>
-
-    <div id="wl-count-row" style="font-size:12px;color:var(--t3);margin-bottom:20px">
-      <span id="wl-count-text">340+ creators already joined</span>
-    </div>
-
-    <form id="waitlist-form" onsubmit="joinWaitlist(event)" class="wl-form">
-      <input id="wl-email" type="email" required placeholder="your@email.com" class="wl-input"/>
-      <button id="btn-waitlist" type="submit" class="btn-primary wl-btn">Save My Spot</button>
-    </form>
-
-    <div id="wl-success" style="display:none;margin-top:16px">
-      <div class="success-box">
-        <div class="success-title">You're in.</div>
-        <p id="wl-position-text" style="color:var(--t2);margin-top:4px"></p>
-        <p style="margin-top:6px">Check your inbox. We just sent you a welcome note with what to expect next.</p>
-      </div>
-    </div>
-
-    <div id="wl-already" style="display:none">
-      <div class="already-box">You're already on the list. We'll be in touch before launch.</div>
-    </div>
-
-    <p class="wl-meta">No credit card. No spam. Unsubscribe anytime.</p>
+<!-- CTA -->
+<section class="cta-section" id="get-started">
+  <div class="cta-inner">
+    <div class="section-label">Ready to start?</div>
+    <h2>Stop leaving brand money<br/><em>on the table.</em></h2>
+    <p>Free plan includes 3 active deals and 4 AI emails — no card, no catch. Upgrade to Pro for unlimited everything.</p>
+    <a href="auth.html" class="btn-primary" style="display:inline-block;padding:13px 28px;font-size:14px">Get started free →</a>
+    <div class="cta-meta">No credit card. No spam. Cancel anytime.</div>
   </div>
 </section>
 
@@ -792,103 +806,24 @@ footer {
       <button onclick="closePaymentModal()" style="background:none;border:none;cursor:pointer;color:var(--t3);font-size:20px;line-height:1;padding:2px" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">✕</button>
     </div>
 
-    <!-- Period toggle -->
     <div class="pm-period-toggle">
       <button id="pm-btn-monthly" class="pm-period-btn active" onclick="setModalPeriod('monthly')">Monthly</button>
       <button id="pm-btn-annual" class="pm-period-btn" onclick="setModalPeriod('annual')">Annual <span class="pm-save">SAVE 17%</span></button>
     </div>
 
-    <!-- Plan recap -->
     <div id="pm-recap" style="background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:12px 14px;margin-bottom:16px">
       <div id="pm-recap-plan" style="font-size:12px;font-weight:600;color:var(--t1)"></div>
       <div id="pm-recap-price" style="font-size:11px;color:var(--t3);margin-top:3px"></div>
     </div>
 
-    <!-- Step 1: email capture -->
     <div id="pm-step-1">
-      <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:7px">Email address</label>
-      <input id="pm-email" type="email" class="pm-input" placeholder="your@email.com" style="margin-bottom:16px"/>
-      <button onclick="submitPaymentIntent()" class="btn-primary" style="width:100%;padding:11px;font-size:13px">Reserve my spot →</button>
-      <p style="font-size:11px;color:var(--t3);text-align:center;margin-top:10px;line-height:1.5">Billing is in final testing. We'll email you a secure payment link the moment it's live.</p>
-    </div>
-
-    <!-- Step 2: confirmation -->
-    <div id="pm-step-2" style="display:none;text-align:center;padding:6px 0">
-      <div style="width:44px;height:44px;border-radius:50%;background:oklch(0.2 0.07 145);border:1px solid oklch(0.35 0.1 145 / 0.5);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
-        <span style="color:oklch(0.72 0.12 145);font-size:20px">✓</span>
-      </div>
-      <p style="font-size:15px;font-weight:700;letter-spacing:-0.02em;color:var(--t1);margin-bottom:6px">You're on the list</p>
-      <p id="pm-confirm-text" style="font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:6px"></p>
-      <p style="font-size:11px;color:var(--t3);margin-bottom:22px">Your founding rate is reserved. We'll never spam you.</p>
-      <button onclick="closePaymentModal()" class="btn-ghost" style="width:100%;padding:10px">Done</button>
+      <a id="pm-checkout-btn" href="auth.html" class="btn-primary" style="display:block;width:100%;padding:11px;font-size:13px;text-align:center;text-decoration:none;box-sizing:border-box">Start free trial →</a>
+      <p style="font-size:11px;color:var(--t3);text-align:center;margin-top:10px;line-height:1.5">7-day free trial. No card required until you're ready to subscribe.</p>
     </div>
   </div>
 </div>
 
 <script>
-const API = 'https://vesca-backend-production.up.railway.app';
-
-// Load live waitlist count + update founding spots
-let foundingTrialDays = 14;
-(async () => {
-  try {
-    const res = await fetch(API + '/waitlist');
-    if (!res.ok) return;
-    const { count } = await res.json();
-    if (count > 0) {
-      document.getElementById('wl-count-text').textContent = `${count}+ creators already joined`;
-      document.getElementById('hero-count').textContent = `${count}+`;
-    }
-    const spotsLeft = Math.max(0, 100 - (count || 0));
-    const el = document.getElementById('founding-spots-left');
-    if (el) el.textContent = spotsLeft > 0 ? spotsLeft : '0';
-    const isFounder = (count || 0) < 100;
-    foundingTrialDays = isFounder ? 14 : 7;
-    const proLabel = document.getElementById('pro-trial-label');
-    if (proLabel) proLabel.textContent = `${foundingTrialDays}-day free trial · no card required`;
-    const foundingLine = document.querySelector('.founding-price-line');
-    if (foundingLine && !isFounder) {
-      foundingLine.innerHTML = '<span style="color:var(--t4);text-decoration:line-through">First 100 founders: $19/mo locked</span> <span style="color:var(--t3)">— spots claimed</span>';
-    }
-    const stripTitle = document.querySelector('.trial-strip-title');
-    if (stripTitle) {
-      stripTitle.innerHTML = isFounder
-        ? `You're in the first 100. You get a <strong>14-day free trial</strong> + $19/mo locked forever.`
-        : `Founding spots are claimed. You get a <strong>7-day free trial</strong>, then $29/mo.`;
-    }
-  } catch(_) {}
-})();
-
-async function joinWaitlist(e) {
-  e.preventDefault();
-  const email = document.getElementById('wl-email').value.trim();
-  const btn = document.getElementById('btn-waitlist');
-  btn.innerHTML = '<span class="spinner"></span>';
-  btn.disabled = true;
-
-  try {
-    const res = await fetch(API + '/waitlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    const data = await res.json().catch(() => ({}));
-    document.getElementById('waitlist-form').style.display = 'none';
-    if (res.status === 409) {
-      document.getElementById('wl-already').style.display = 'block';
-    } else {
-      document.getElementById('wl-success').style.display = 'block';
-      if (data.position) {
-        document.getElementById('wl-position-text').textContent = `You're #${data.position} on the list.`;
-      }
-    }
-  } catch(err) {
-    btn.disabled = false;
-    btn.innerHTML = 'Save My Spot';
-    alert('Something went wrong. Please try again.');
-  }
-}
-
 // Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
@@ -897,7 +832,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 
-// ── Billing period toggle ─────────────────────────────────
+// Billing period toggle
 let currentBilling = 'monthly';
 function setBilling(period) {
   currentBilling = period;
@@ -907,12 +842,13 @@ function setBilling(period) {
   document.querySelectorAll('.plan-amount[data-monthly]').forEach(el => {
     el.textContent = '$' + (isAnnual ? el.dataset.annual : el.dataset.monthly);
   });
-  document.querySelectorAll('.plan-annual-note').forEach(el => {
-    el.style.display = isAnnual ? 'block' : 'none';
+  ['pro', 'studio', 'scale'].forEach(plan => {
+    const el = document.getElementById(plan + '-annual-note');
+    if (el) el.style.display = isAnnual ? 'block' : 'none';
   });
 }
 
-// ── Payment modal ─────────────────────────────────────────
+// Payment modal
 const PLAN_PRICES = {
   pro:    { name: 'Pro',    monthly: 29,  annual: 24,  annualTotal: 288 },
   studio: { name: 'Studio', monthly: 79,  annual: 65,  annualTotal: 780 },
@@ -924,12 +860,7 @@ let modalPeriod = 'monthly';
 function openPaymentModal(plan) {
   modalPlan = plan;
   modalPeriod = currentBilling;
-  document.getElementById('pm-step-1').style.display = 'block';
-  document.getElementById('pm-step-2').style.display = 'none';
-  document.getElementById('pm-email').value = '';
   updateModalDisplay();
-  const trialNote = document.querySelector('#pm-step-1 p');
-  if (trialNote) trialNote.innerHTML = `Starts with a <strong style="color:var(--t1)">${foundingTrialDays}-day free trial</strong>. No card charged until day ${foundingTrialDays + 1}. Billing launches soon — we'll email your payment link.`;
   document.getElementById('payment-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -941,40 +872,19 @@ function closePaymentModal() {
 
 function setModalPeriod(period) {
   modalPeriod = period;
+  document.getElementById('pm-btn-monthly').classList.toggle('active', period === 'monthly');
+  document.getElementById('pm-btn-annual').classList.toggle('active', period === 'annual');
   updateModalDisplay();
 }
 
 function updateModalDisplay() {
   const p = PLAN_PRICES[modalPlan];
   const isAnnual = modalPeriod === 'annual';
-  const price = isAnnual ? p.annual : p.monthly;
-  document.getElementById('pm-title').textContent = `${p.name} — $${price}/mo`;
-  document.getElementById('pm-recap-plan').textContent = `${p.name} plan`;
+  document.getElementById('pm-title').textContent = p.name + ' — $' + (isAnnual ? p.annual : p.monthly) + '/mo';
+  document.getElementById('pm-recap-plan').textContent = p.name + ' Plan';
   document.getElementById('pm-recap-price').textContent = isAnnual
-    ? `$${p.annual}/mo — billed $${p.annualTotal}/yr (save 17%)`
-    : `$${p.monthly}/mo — billed monthly`;
-  document.getElementById('pm-btn-monthly').classList.toggle('active', !isAnnual);
-  document.getElementById('pm-btn-annual').classList.toggle('active', isAnnual);
-}
-
-async function submitPaymentIntent() {
-  const email = document.getElementById('pm-email').value.trim();
-  if (!email || !email.includes('@')) { alert('Enter a valid email address.'); return; }
-  const btn = document.querySelector('#pm-step-1 .btn-primary');
-  btn.textContent = 'Reserving…'; btn.disabled = true;
-  try {
-    await fetch(API + '/waitlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, plan: modalPlan, period: modalPeriod }),
-    });
-  } catch(_) {}
-  const p = PLAN_PRICES[modalPlan];
-  document.getElementById('pm-confirm-text').textContent =
-    `We'll email ${email} a secure payment link for ${p.name} when billing is ready.`;
-  document.getElementById('pm-step-1').style.display = 'none';
-  document.getElementById('pm-step-2').style.display = 'block';
-  btn.textContent = 'Reserve my spot →'; btn.disabled = false;
+    ? '$' + p.annual + '/mo · billed $' + p.annualTotal + '/yr'
+    : '$' + p.monthly + '/mo · billed monthly';
 }
 </script>
 </body>
