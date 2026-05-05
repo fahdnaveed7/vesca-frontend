@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Vesca Admin</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:     #0d0d10;
+  --bg-1:   #111116;
+  --bg-2:   #16161c;
+  --border: #1e1e26;
+  --brd-s:  #181820;
+  --t1:     #ebebf0;
+  --t2:     #8080a0;
+  --t3:     #44445a;
+  --t4:     #2c2c3c;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-family: 'Geist', system-ui, sans-serif; background: var(--bg); color: var(--t1); font-size: 14px; -webkit-font-smoothing: antialiased; }
+
+.panel { background: var(--bg-1); border: 1px solid var(--border); border-radius: 3px; }
+.label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--t3); }
+.big { font-size: 32px; font-weight: 800; letter-spacing: -0.04em; color: var(--t1); }
+.section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--t2); }
+
+/* Gate */
+#gate { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; align-items: center; justify-content: center; }
+.gate-box { background: var(--bg-1); border: 1px solid var(--border); border-radius: 3px; padding: 32px; width: 320px; }
+.gate-logo { display: flex; align-items: center; gap: 8px; margin-bottom: 28px; }
+.gate-logomark { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+.gate-input { width: 100%; background: var(--bg-2); border: 1px solid var(--border); color: var(--t1); padding: 10px 14px; border-radius: 3px; font-size: 14px; font-family: inherit; outline: none; margin-bottom: 10px; }
+.gate-input:focus { border-color: var(--t2); }
+.gate-btn { width: 100%; background: var(--t1); color: var(--bg); border: none; border-radius: 3px; padding: 10px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; }
+.gate-btn:hover { opacity: 0.88; }
+.gate-error { font-size: 12px; color: oklch(0.65 0.15 20); margin-top: 8px; }
+
+/* Layout */
+#dashboard { display: none; min-height: 100vh; }
+header { height: 48px; border-bottom: 1px solid var(--brd-s); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; background: var(--bg); z-index: 10; }
+.header-logo { display: flex; align-items: center; gap: 8px; }
+.header-logomark { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+.badge { display: inline-flex; align-items: center; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 2px; background: oklch(0.25 0.06 20); color: oklch(0.72 0.12 20); border: 1px solid oklch(0.4 0.1 20 / 0.4); }
+.content { max-width: 1100px; margin: 0 auto; padding: 28px; display: flex; flex-direction: column; gap: 20px; }
+
+/* Grid */
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 900px) { .grid-4 { grid-template-columns: 1fr 1fr; } .grid-3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+
+.kpi { padding: 20px; }
+.kpi .label { margin-bottom: 10px; }
+.kpi .big { margin-bottom: 4px; }
+.kpi .sub { font-size: 11px; color: var(--t3); }
+
+/* Bars */
+.bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.bar-row:last-child { margin-bottom: 0; }
+.bar-label { font-size: 11px; color: var(--t3); width: 130px; flex-shrink: 0; }
+.bar-track { flex: 1; height: 5px; background: var(--bg-2); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.bar-val { font-size: 11px; font-weight: 600; color: var(--t2); width: 32px; text-align: right; flex-shrink: 0; }
+
+/* Signup tiers */
+.tier-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid var(--brd-s); }
+.tier-row:first-child { border-top: none; }
+.tier-name { font-size: 12px; font-weight: 600; color: var(--t1); }
+.tier-desc { font-size: 11px; color: var(--t3); margin-top: 2px; }
+.tier-count { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+
+/* Activity chart */
+#act-chart { display: flex; align-items: flex-end; gap: 3px; height: 100px; }
+#act-labels { display: flex; gap: 3px; margin-top: 5px; }
+
+/* Refresh */
+.refresh-btn { font-size: 11px; color: var(--t3); background: none; border: 1px solid var(--border); border-radius: 3px; padding: 4px 10px; cursor: pointer; font-family: inherit; transition: color 0.1s, border-color 0.1s; }
+.refresh-btn:hover { color: var(--t1); border-color: var(--t3); }
+
+/* Stat table */
+.stat-table { width: 100%; border-collapse: collapse; }
+.stat-table td { padding: 10px 0; border-top: 1px solid var(--brd-s); font-size: 12px; }
+.stat-table td:first-child { color: var(--t3); }
+.stat-table td:last-child { text-align: right; font-weight: 600; color: var(--t1); }
+.stat-table tr:first-child td { border-top: none; }
+
+/* Pulse dot */
+.pulse { width: 6px; height: 6px; border-radius: 50%; background: oklch(0.72 0.12 145); display: inline-block; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+#last-updated { font-size: 10px; color: var(--t4); }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { border: 2px solid rgba(235,235,240,0.1); border-top-color: var(--t1); border-radius: 50%; width: 14px; height: 14px; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="gate-logo">
+      <div class="gate-logomark">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3.5L10 16.5L17 3.5" stroke="oklch(0.72 0.12 70)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <span style="font-size:15px;font-weight:700;letter-spacing:-0.025em">vesca</span>
+      <span class="badge">Admin</span>
+    </div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:20px;line-height:1.6">Platform analytics. Private access only.</p>
+    <input id="gate-pw" type="password" class="gate-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')checkGate()"/>
+    <button id="gate-btn" class="gate-btn" onclick="checkGate()">Unlock</button>
+    <p id="gate-err" class="gate-error" style="display:none">Incorrect password.</p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+  <header>
+    <div class="header-logo">
+      <div class="header-logomark">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0d0d10" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <span style="font-size:14px;font-weight:700;letter-spacing:-0.025em">vesca</span>
+      <span class="badge">Admin</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="pulse"></span>
+      <span id="last-updated">Loading...</span>
+      <button class="refresh-btn" onclick="loadDashboard()">Refresh</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- TOP KPIs -->
+    <div class="grid-4">
+      <div class="panel kpi">
+        <p class="label">Waitlist Signups</p>
+        <p id="k-signups" class="big">—</p>
+        <p class="sub">total on waitlist</p>
+      </div>
+      <div class="panel kpi">
+        <p class="label">Founding Spots Left</p>
+        <p id="k-founding-left" class="big" style="color:oklch(0.72 0.12 70)">—</p>
+        <p class="sub">of 100 available</p>
+      </div>
+      <div class="panel kpi">
+        <p class="label">Tier-2 Spots Left</p>
+        <p id="k-tier2-left" class="big">—</p>
+        <p class="sub">of 400 available</p>
+      </div>
+      <div class="panel kpi">
+        <p class="label">Standard Signups</p>
+        <p id="k-standard" class="big">—</p>
+        <p class="sub">past 500 waitlist</p>
+      </div>
+    </div>
+
+    <!-- SIGNUP TIER BREAKDOWN + ACTIVITY -->
+    <div class="grid-2">
+
+      <div class="panel" style="padding:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <p class="section-title">Signup Tiers</p>
+        </div>
+        <div class="tier-row">
+          <div>
+            <p class="tier-name" style="color:oklch(0.72 0.12 70)">Founding Members</p>
+            <p class="tier-desc">3 months free, $19/mo locked forever</p>
+          </div>
+          <p id="t-founding" class="tier-count" style="color:oklch(0.72 0.12 70)">—</p>
+        </div>
+        <div class="tier-row">
+          <div>
+            <p class="tier-name">Tier 2</p>
+            <p class="tier-desc">2 months free, then standard pricing</p>
+          </div>
+          <p id="t-tier2" class="tier-count">—</p>
+        </div>
+        <div class="tier-row">
+          <div>
+            <p class="tier-name">Standard</p>
+            <p class="tier-desc">No special offer, full price on launch</p>
+          </div>
+          <p id="t-standard" class="tier-count">—</p>
+        </div>
+        <div class="tier-row" style="margin-top:8px;padding-top:16px">
+          <div>
+            <p class="tier-name">Total</p>
+          </div>
+          <p id="t-total" class="tier-count" style="font-size:22px">—</p>
+        </div>
+
+        <!-- Progress to 500 -->
+        <div style="margin-top:20px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:11px;color:var(--t3)">Progress to 500 goal</span>
+            <span id="progress-pct" style="font-size:11px;font-weight:600;color:var(--t2)">0%</span>
+          </div>
+          <div style="height:5px;background:var(--bg-2);border-radius:3px;overflow:hidden">
+            <div id="progress-bar" style="height:100%;width:0%;background:oklch(0.72 0.12 145);border-radius:3px;transition:width 0.6s ease"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px">
+            <span style="font-size:10px;color:var(--t4)">0</span>
+            <span style="font-size:10px;color:var(--t4)">100 Founding</span>
+            <span style="font-size:10px;color:var(--t4)">500</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="padding:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <p class="section-title">Activity — Last 30 Days</p>
+          <span style="font-size:10px;color:var(--t4)">deals created per day</span>
+        </div>
+        <div id="act-chart"></div>
+        <div id="act-labels"></div>
+        <div style="display:flex;gap:16px;margin-top:14px">
+          <div style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:1px;background:oklch(0.72 0.12 145);display:inline-block"></span><span style="font-size:10px;color:var(--t3)">Created</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:1px;background:oklch(0.5 0.08 250);display:inline-block"></span><span style="font-size:10px;color:var(--t3)">Updated</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- WAITLIST MOMENTUM -->
+    <div class="panel" style="padding:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <p class="section-title">Waitlist Momentum</p>
+        <p id="momentum-sub" style="font-size:11px;color:var(--t3)"></p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--brd-s);border:1px solid var(--brd-s);border-radius:3px;overflow:hidden">
+        <div style="background:var(--bg-1);padding:16px 20px">
+          <p class="label" style="margin-bottom:8px">To Founding Full</p>
+          <p id="m-to-founding" style="font-size:22px;font-weight:700;letter-spacing:-0.03em;color:oklch(0.72 0.12 70)">—</p>
+          <p style="font-size:11px;color:var(--t3);margin-top:3px">spots remaining</p>
+        </div>
+        <div style="background:var(--bg-1);padding:16px 20px">
+          <p class="label" style="margin-bottom:8px">To Tier-2 Full</p>
+          <p id="m-to-tier2" style="font-size:22px;font-weight:700;letter-spacing:-0.03em">—</p>
+          <p style="font-size:11px;color:var(--t3);margin-top:3px">spots remaining</p>
+        </div>
+        <div style="background:var(--bg-1);padding:16px 20px">
+          <p class="label" style="margin-bottom:8px">All Spots Filled</p>
+          <p id="m-to-full" style="font-size:22px;font-weight:700;letter-spacing:-0.03em">—</p>
+          <p style="font-size:11px;color:var(--t3);margin-top:3px">needed for standard</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK STATS -->
+    <div class="grid-2">
+      <div class="panel" style="padding:20px">
+        <p class="section-title" style="margin-bottom:16px">Founding Conversion</p>
+        <table class="stat-table">
+          <tr><td>Founding slots total</td><td>100</td></tr>
+          <tr><td>Founding slots claimed</td><td id="s-founding-claimed">—</td></tr>
+          <tr><td>Founding slots remaining</td><td id="s-founding-rem" style="color:oklch(0.72 0.12 70)">—</td></tr>
+          <tr><td>Founding fill rate</td><td id="s-founding-rate">—</td></tr>
+          <tr><td>Tier-2 slots total</td><td>400</td></tr>
+          <tr><td>Tier-2 claimed</td><td id="s-tier2-claimed">—</td></tr>
+        </table>
+      </div>
+      <div class="panel" style="padding:20px">
+        <p class="section-title" style="margin-bottom:16px">Revenue Potential</p>
+        <table class="stat-table">
+          <tr><td>Founding MRR (if all convert)</td><td id="r-founding-mrr" style="color:oklch(0.72 0.12 145)">—</td></tr>
+          <tr><td>Tier-2 MRR (standard $29)</td><td id="r-tier2-mrr" style="color:oklch(0.72 0.12 145)">—</td></tr>
+          <tr><td>Standard MRR (standard $29)</td><td id="r-standard-mrr" style="color:oklch(0.72 0.12 145)">—</td></tr>
+          <tr><td>Total potential MRR</td><td id="r-total-mrr" style="color:var(--t1);font-size:14px">—</td></tr>
+          <tr><td>At 10% conversion</td><td id="r-10pct">—</td></tr>
+          <tr><td>At 25% conversion</td><td id="r-25pct">—</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:12px 0">
+      <p style="font-size:11px;color:var(--t4)">Vesca Admin — private, not indexed. Do not share this URL.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = 'https://vesca-backend-production.up.railway.app';
+const ADMIN_SECRET_KEY = 'vesca_admin_secret';
+
+function adminSecret() {
+  return sessionStorage.getItem(ADMIN_SECRET_KEY) || '';
+}
+
+async function checkGate() {
+  const val = (document.getElementById('gate-pw').value || '').trim();
+  if (!val) return;
+  const btn = document.getElementById('gate-btn');
+  btn.disabled = true;
+  btn.textContent = 'Checking...';
+  // Validate server-side — the cron secret is never stored in source code
+  const res = await fetch(API + '/waitlist', { headers: { 'x-cron-secret': val } });
+  if (res.ok) {
+    sessionStorage.setItem(ADMIN_SECRET_KEY, val);
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadDashboard();
+  } else {
+    document.getElementById('gate-err').style.display = 'block';
+    document.getElementById('gate-pw').value = '';
+    btn.disabled = false;
+    btn.textContent = 'Unlock';
+  }
+}
+
+// Auto-unlock if session has a stored secret — re-verify it server-side
+const _stored = adminSecret();
+if (_stored) {
+  fetch(API + '/waitlist', { headers: { 'x-cron-secret': _stored } }).then(r => {
+    if (r.ok) {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadDashboard();
+    } else {
+      sessionStorage.removeItem(ADMIN_SECRET_KEY);
+    }
+  });
+}
+
+async function loadDashboard() {
+  document.getElementById('last-updated').textContent = 'Refreshing...';
+  try {
+
+    // ── Fetch waitlist count ───────────────────────────────
+    const wlRes  = await fetch(API + '/waitlist', { headers: { 'x-cron-secret': adminSecret() } });
+    const wlData = wlRes.ok ? await wlRes.json() : { count: 0 };
+    const total  = wlData.count || 0;
+
+    const founding  = Math.min(total, 100);
+    const tier2     = Math.max(0, Math.min(total - 100, 400));
+    const standard  = Math.max(0, total - 500);
+
+    const foundingLeft = Math.max(0, 100 - founding);
+    const tier2Left    = Math.max(0, 400 - tier2);
+
+    // ── KPIs ──────────────────────────────────────────────
+    document.getElementById('k-signups').textContent       = total.toLocaleString();
+    document.getElementById('k-founding-left').textContent = foundingLeft;
+    document.getElementById('k-tier2-left').textContent    = tier2Left;
+    document.getElementById('k-standard').textContent      = standard;
+
+    // ── Tier breakdown ────────────────────────────────────
+    document.getElementById('t-founding').textContent  = founding;
+    document.getElementById('t-tier2').textContent     = tier2;
+    document.getElementById('t-standard').textContent  = standard;
+    document.getElementById('t-total').textContent     = total.toLocaleString();
+
+    const progressPct = Math.min(100, Math.round((total / 500) * 100));
+    document.getElementById('progress-pct').textContent = progressPct + '%';
+    document.getElementById('progress-bar').style.width = progressPct + '%';
+
+    // ── Momentum ──────────────────────────────────────────
+    document.getElementById('m-to-founding').textContent = foundingLeft;
+    document.getElementById('m-to-tier2').textContent    = tier2Left;
+    document.getElementById('m-to-full').textContent     = Math.max(0, 500 - total);
+    document.getElementById('momentum-sub').textContent  = total < 500
+      ? `${500 - total} signups until all launch offers close`
+      : 'All launch offers filled';
+
+    // ── Stats ─────────────────────────────────────────────
+    document.getElementById('s-founding-claimed').textContent  = founding;
+    document.getElementById('s-founding-rem').textContent      = foundingLeft;
+    document.getElementById('s-founding-rate').textContent     = Math.round((founding / 100) * 100) + '%';
+    document.getElementById('s-tier2-claimed').textContent     = tier2;
+
+    // ── Revenue potential ─────────────────────────────────
+    const foundingMRR  = founding * 19;
+    const tier2MRR     = tier2 * 29;
+    const standardMRR  = standard * 29;
+    const totalMRR     = foundingMRR + tier2MRR + standardMRR;
+
+    document.getElementById('r-founding-mrr').textContent  = '$' + foundingMRR.toLocaleString() + '/mo';
+    document.getElementById('r-tier2-mrr').textContent     = '$' + tier2MRR.toLocaleString() + '/mo';
+    document.getElementById('r-standard-mrr').textContent  = '$' + standardMRR.toLocaleString() + '/mo';
+    document.getElementById('r-total-mrr').textContent     = '$' + totalMRR.toLocaleString() + '/mo';
+    document.getElementById('r-10pct').textContent         = '$' + Math.round(totalMRR * 0.10).toLocaleString() + '/mo';
+    document.getElementById('r-25pct').textContent         = '$' + Math.round(totalMRR * 0.25).toLocaleString() + '/mo';
+
+    // ── Activity chart (deal created_at from this user's data) ──
+    // We pull deals as admin — if backend requires auth this will be empty
+    let allDeals = [];
+    try {
+      const dr = await fetch(API + '/deals', { headers: { 'x-admin': 'true' } });
+      if (dr.ok) allDeals = await dr.json();
+    } catch(_) {}
+
+    const days = 30;
+    const created = {}; const updated = {};
+    for (let i = 0; i < days; i++) {
+      const d = new Date(); d.setDate(d.getDate() - (days - 1 - i));
+      const k = d.toISOString().slice(0, 10);
+      created[k] = 0; updated[k] = 0;
+    }
+    allDeals.forEach(deal => {
+      const c = (deal.created_at || '').slice(0, 10);
+      const u = (deal.updated_at || '').slice(0, 10);
+      if (created[c] !== undefined) created[c]++;
+      if (updated[u] !== undefined && u !== c) updated[u]++;
+    });
+    const keys   = Object.keys(created).sort();
+    const maxBar = Math.max(...keys.map(k => created[k] + updated[k]), 1);
+    document.getElementById('act-chart').innerHTML = keys.map(k => {
+      const cPct = Math.round((created[k] / maxBar) * 100);
+      const uPct = Math.round((updated[k] / maxBar) * 100);
+      const total = created[k] + updated[k];
+      return `<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100px;gap:1px" title="${k}: ${created[k]} created, ${updated[k]} updated">
+        ${uPct > 0 ? `<div style="width:100%;height:${uPct}%;background:oklch(0.5 0.08 250);border-radius:1px 1px 0 0;min-height:2px"></div>` : ''}
+        ${cPct > 0 ? `<div style="width:100%;height:${cPct}%;background:oklch(0.72 0.12 145);border-radius:${uPct?'0':'1px 1px'} 0 0;min-height:2px"></div>` : ''}
+        ${total === 0 ? `<div style="width:100%;height:2px;background:var(--bg-2)"></div>` : ''}
+      </div>`;
+    }).join('');
+    document.getElementById('act-labels').innerHTML = keys.map((k, i) => {
+      const day = new Date(k + 'T12:00:00').getDate();
+      return `<div style="flex:1;text-align:center;font-size:9px;color:var(--t4)">${i % 5 === 0 ? day : ''}</div>`;
+    }).join('');
+
+    const now = new Date();
+    document.getElementById('last-updated').textContent = 'Updated ' + now.toLocaleTimeString();
+
+  } catch(e) {
+    console.error(e);
+    document.getElementById('last-updated').textContent = 'Error loading data';
+  }
+}
+
+// Auto-load if already in session
+if (sessionStorage.getItem(ADMIN_PW_KEY) === '1') {
+  loadDashboard();
+}
+</script>
+</body>
+</html>

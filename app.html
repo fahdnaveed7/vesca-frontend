@@ -405,6 +405,7 @@
       dsn: 'https://640d209cdbd0c6a6d0e4eb6015a5a523@o4511327707725824.ingest.us.sentry.io/4511327739248640',
       environment: 'production',
       tracesSampleRate: 0.1,
+      allowUrls: [/https?:\/\/(www\.)?getvesca\.com/],
     });
   }
 </script>
@@ -1390,7 +1391,6 @@
           </div>
         </div>
       </div>
-      <p style="font-size:11px;color:var(--t3);margin-bottom:16px">Studio and Scale are in final development. <a href="https://getvesca.com/#waitlist" target="_blank" rel="noopener noreferrer" style="color:var(--t2);text-decoration:underline">Join the waitlist →</a></p>
       <div style="background:oklch(0.2 0.05 70 / 0.5);border:1px solid oklch(0.35 0.1 70 / 0.4);border-radius:3px;padding:12px 14px;margin-bottom:18px">
         <p style="font-size:11px;font-weight:700;color:oklch(0.72 0.12 70);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px">Founding Member Offer</p>
         <p style="font-size:12px;color:var(--t2)">First 100 members get <strong style="color:var(--t1)">$19/mo locked forever</strong> on Pro. Spots 101–500 get 2 months free.</p>
@@ -1401,18 +1401,19 @@
       </div>
     </div>
 
-    <!-- Step 2: Billing coming soon -->
+    <!-- Step 2: Checkout redirect -->
     <div id="upgrade-step-2" class="hidden">
       <div style="text-align:center;padding:8px 0 20px">
         <div style="width:44px;height:44px;border-radius:50%;background:oklch(0.22 0.05 145);border:1px solid oklch(0.35 0.1 145 / 0.5);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
           <span class="material-symbols-outlined" style="color:oklch(0.72 0.12 145);font-size:20px">check_circle</span>
         </div>
-        <h3 style="font-size:16px;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px">You're on the list</h3>
-        <p style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:6px">Billing is launching soon. We'll send your payment link to:</p>
+        <h3 style="font-size:16px;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px">Ready to subscribe</h3>
+        <p style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:6px">You'll be taken to checkout for:</p>
         <p id="upgrade-email-display" style="font-size:13px;font-weight:600;color:var(--t1);margin-bottom:16px"></p>
-        <p style="font-size:12px;color:var(--t3);line-height:1.5;margin-bottom:20px">You keep full access in the meantime.<br/>Your founding rate is reserved.</p>
+        <p style="font-size:12px;color:var(--t3);line-height:1.5;margin-bottom:20px">Secure checkout. Cancel anytime.</p>
       </div>
-      <button onclick="closeUpgradeModal()" class="vs-btn-primary" style="width:100%;padding:10px">Got it</button>
+      <a id="upgrade-checkout-link" href="https://getvesca.com/pricing" target="_blank" class="vs-btn-primary" style="display:block;width:100%;padding:10px;text-align:center;text-decoration:none;box-sizing:border-box">Go to checkout →</a>
+      <button onclick="closeUpgradeModal()" class="vs-btn-ghost" style="margin-top:8px;width:100%">Maybe later</button>
     </div>
   </div>
 </div>
@@ -1493,16 +1494,9 @@ async function initAuth() {
   }
   applyPlanUI(plan);
 
-  // Stamp new users: check signup count to assign 14-day or 7-day trial
+  // Stamp new users with a 7-day trial
   if (!meta.plan) {
-    try {
-      const r = await fetch('https://vesca-backend-production.up.railway.app/waitlist');
-      const { count } = await r.json().catch(() => ({ count: 999 }));
-      const trialDays = (count || 999) < 100 ? 14 : 7;
-      sb.auth.updateUser({ data: { plan: 'trial', trial_starts_at: new Date().toISOString(), trial_days: trialDays } });
-    } catch(_) {
-      sb.auth.updateUser({ data: { plan: 'trial', trial_starts_at: new Date().toISOString(), trial_days: 7 } });
-    }
+    sb.auth.updateUser({ data: { plan: 'trial', trial_starts_at: new Date().toISOString(), trial_days: 7 } });
   }
 
   sb.auth.onAuthStateChange((event, session) => {
@@ -2095,11 +2089,10 @@ function selectUpgradePlan(plan) {
 
 function proceedToCheckout() {
   const emailEl = document.getElementById('upgrade-email-display');
-  const userEmailEl = document.getElementById('user-email');
-  if (emailEl && userEmailEl) emailEl.textContent = userEmailEl.textContent || 'your email';
+  if (emailEl) emailEl.textContent = selectedUpgradePlan === 'pro' ? 'Pro — $29/mo' : selectedUpgradePlan;
   document.getElementById('upgrade-step-1').classList.add('hidden');
   document.getElementById('upgrade-step-2').classList.remove('hidden');
-  document.getElementById('upgrade-modal-title').textContent = 'Billing launching soon';
+  document.getElementById('upgrade-modal-title').textContent = 'Subscribe to Pro';
 }
 
 function openUpgradeModal(reason) {
